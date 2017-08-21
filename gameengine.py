@@ -1,17 +1,25 @@
 #!/usr/bin/python
 
+from deuces import *
+
 class gameEngine:
 	def __init__(self):
 		self.players = []
 		self.bb = None
 		
 	def gameStart(self):
-		pass
+		while True:
+			self.roundStart()
+			self.roundEnd
 	def addPlayer(self,player):
-		pass
+		self.players.append(player)
+
 	def kickPlayer(self):
 		pass
 	def roundStart(self):
-		pass
+		self.deck = Deck()
+		for p in self.players:
+			p.roundStart()
+		
 	def roundEnd(self):
 		pass

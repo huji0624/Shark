@@ -10,7 +10,7 @@ class player:
 		pass
 	def gameEnd(self):
 		pass
-	def roundStart(self):
+	def roundStart(self,handcard):
 		pass
 	def roundEnd(self):
 		pass

@@ -6,7 +6,7 @@ PLAYER_ACTION_TYPE_CALL = "call"
 PLAYER_ACTION_TYPE_RAISE = "raise"
 
 class player:
-	def gameStart(self):
+	def gameStart(self,buyin,bb,sb):
 		pass
 	def gameEnd(self):
 		pass

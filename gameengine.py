@@ -12,7 +12,7 @@ class gameEngine:
 	def __init__(self):
 		self.roundCount = 0
 		self.players = []
-		self.btn = None
+		self.button = None
 		self.buyin = 200
 		self.bb = 2
 		self.sb = 1
@@ -28,12 +28,15 @@ class gameEngine:
 			self.roundEnd
 
 	def initGame(self):
-		self.btn = random.randint(0,len(self.players) - 1)
+		self.button = random.randint(0,len(self.players) - 1)
 		for p in self.players:
 			p.player.gameStart(self.buyin,self.bb,self.sb)
 			p.chips = self.buyin
 
 	def addPlayer(self,player):
+		if player.name() == None:
+			print "add player fail.name must be set."
+			return
 		self.players.append(PlayerIns(player))
 
 	def kickPlayer(self):
@@ -41,7 +44,7 @@ class gameEngine:
 
 	def roundStart(self):
 		self.roundCount = self.roundCount + 1
-		self.btn = self.btn + 1
+		self.button = self.button + 1
 		self.deck = Deck()
 		for p in self.players:
 			handcard = self.deck.draw(2)
@@ -56,7 +59,14 @@ class gameEngine:
 		p.handcard = None
 
 	def preFlop(self):
-		pass
+		pcount = len(self.players)
+		if pcount == 2:
+			pass
+		elif pcount > 2:
+			pass
+		else:
+			print "only one player.game stopped."
+			exit 1
 
 	def flop(self):
 		pass

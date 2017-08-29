@@ -1,8 +1,11 @@
 #!/usr/bin/python
 
-def loginfo(msg):
+def logD(msg):
+	print "[DEBUG]"+msg
+
+def logI(msg):
 	print "[INFO]"+msg
 
-def logerr(msg):
+def logE(msg):
 	print "[ERR]"+msg
 	exit(1)

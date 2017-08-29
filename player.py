@@ -6,6 +6,11 @@ PLAYER_ACTION_TYPE_CALL = "call"
 PLAYER_ACTION_TYPE_RAISE = "raise"
 PLAYER_ACTION_TYPE_ALLIN = "allin"
 
+class action:
+	def __init__(self,action_type):
+		self.type = action_type
+		self.chips = 0
+
 class player:
 	def name(self):
 		return None

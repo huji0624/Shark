@@ -7,6 +7,7 @@ class PlayerIns():
 
 from deuces import *
 import random
+from betround import *
 
 class gameEngine:
 	def __init__(self):
@@ -46,6 +47,7 @@ class gameEngine:
 		self.roundCount = self.roundCount + 1
 		self.button = self.button + 1
 		self.deck = Deck()
+		self.pool = 0
 		for p in self.players:
 			handcard = self.deck.draw(2)
 			p.player.roundStart(handcard)
@@ -60,16 +62,17 @@ class gameEngine:
 
 	def preFlop(self):
 		pcount = len(self.players)
-		if pcount == 2:
-			pass
-		elif pcount > 2:
-			pass
+		if pcount > 2:
+			br = Betround(0,self.players,self.button,self.bb)
+			br.addPreBet(self.sb)
+			br.addPreBet(self.bb)
+			br.loop()
 		else:
-			print "only one player.game stopped."
-			exit 1
+			print "not enough player.game stopped."
+			exit(1)
 
 	def flop(self):
-		pass
+		logE("only preflop.exit.")
 
 	def turn(self):
 		pass

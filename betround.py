@@ -31,7 +31,8 @@ class Betround:
 	def initall(self):
 		for p in self.players:
 			p.roundbet = 0
-			p.state = STATE_ACTIVE
+			if p.state != STATE_ALLIN:
+				p.state = STATE_ACTIVE
 
 	def next(self,index):
 		if index == (self.count - 1):

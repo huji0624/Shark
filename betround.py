@@ -68,6 +68,11 @@ class Betround:
             if self.end():
                 break
 
+        #cal side pot
+        for p in self.players:
+            if p.state == STATE_ALLIN and p.sidepot==0:
+                self.calSidePot(p)
+
         return self.roundpool
 
     def excuteBet(self, bet):
@@ -137,6 +142,9 @@ class Betround:
         else:
             logE("not support action." + action.type)
             exit(1)
+
+    def calSidePot(self,player):
+        pass
 
     def end(self):
         tmpmap = {}

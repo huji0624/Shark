@@ -8,7 +8,8 @@ class PlayerIns():
 
 from deuces import *
 import random
-from betround import *
+import betround
+from log import *
 
 
 class gameEngine:
@@ -19,16 +20,20 @@ class gameEngine:
         self.buyin = 200
         self.bb = 2
         self.sb = 1
+        self.board = None
 
     def gameStart(self):
         self.initGame()
         while True:
             self.roundStart()
             self.preFlop()
-            self.flop()
-            self.turn()
-            self.river()
-            self.roundEnd
+            if self.checkRound():
+	            self.flop()
+	            if self.checkRound():
+	            	self.turn()
+	            	if self.checkRound():
+	            		self.river()
+            self.roundEnd()
 
     def initGame(self):
         self.button = random.randint(0, len(self.players) - 1)
@@ -50,6 +55,7 @@ class gameEngine:
         self.button = self.button + 1
         self.deck = Deck()
         self.pool = 0
+        self.board = []
         for p in self.players:
             handcard = self.deck.draw(2)
             p.player.roundStart(handcard)
@@ -57,27 +63,56 @@ class gameEngine:
         print "round %d start" % (self.roundCount)
 
     def roundEnd(self):
+    	#[issue] who wins.
         self.deck = None
         for p in self.players:
             p.player.roundEnd()
         p.handcard = None
 
+    def checkRound(self):
+    	fold_player_count=0
+    	for p in self.players:
+    		if p.state == betround.STATE_FOLD:
+    			fold_player_count=fold_player_count+1
+    	if fold_player_count == len(self.players) - 1:
+    		return False
+    	else:
+    		return True
+
     def preFlop(self):
         pcount = len(self.players)
         if pcount > 2:
-            br = Betround(0, self.players, self.button, self.bb)
+            br = betround.Betround(0, self.players, self.button, self.bb)
             br.addPreBet(self.sb)
             br.addPreBet(self.bb)
-            br.loop()
+            roundpool = br.loop()
+            self.pool =  self.pool + roundpool
         else:
-            print "not enough player.game stopped."
-            exit(1)
+            logE("not enough player.game stopped.")
 
     def flop(self):
-        logE("only preflop.exit.")
+    	cards = self.deck.draw(3)
+    	self.board.extends(cards)
+        for p in self.players:
+        	p.player.flop(cards)
+        br = betround.Betround(0, self.players, self.button, self.bb)
+        roundpool = br.loop()
+        self.pool =  self.pool + roundpool
 
     def turn(self):
-        pass
+    	card = self.deck.draw(1)
+    	self.board.append(card)
+    	for p in self.players:
+    		p.player.turn(card)
+        br = betround.Betround(0, self.players, self.button, self.bb)
+        roundpool = br.loop()
+        self.pool =  self.pool + roundpool
 
     def river(self):
-        pass
+    	card = self.deck.draw(1)
+    	self.board.append(card)
+    	for p in self.players:
+    		p.player.river(card)
+        br = betround.Betround(0, self.players, self.button, self.bb)
+        roundpool = br.loop()
+        self.pool =  self.pool + roundpool

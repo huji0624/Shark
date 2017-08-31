@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
+for i in range(10,0,-1):
+	print i
+
 from deuces import *
 
 evaluator = Evaluator()
-
-p1 = [Card.new('9h'), Card.new('10j')]
-print evaluator.evaluate(p1)

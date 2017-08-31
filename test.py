@@ -1,8 +1,9 @@
 #!/usr/bin/python
 
-for i in range(10,0,-1):
-	print i
-
 from deuces import *
 
 evaluator = Evaluator()
+
+deck = Deck()
+board = deck.draw(5)
+print evaluator.evaluate(deck.draw(2),board)

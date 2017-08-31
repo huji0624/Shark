@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
 class player:
-    def name(self):
-        return None
+    def __init__(self,name):
+        self.name = name
 
     def gameStart(self, buyin, bb, sb):
         pass

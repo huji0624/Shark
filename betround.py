@@ -62,30 +62,32 @@ class Betround:
 
         return self.roundpool
 
+    def addExcutedAction(self,action):
+    	self.actions.append(action)
+
     def excuteAction(self, action):
     	if action.type == PLAYER_ACTION_TYPE_FOLD:
     		player.state = STATE_FOLD
     	elif action.type == PLAYER_ACTION_TYPE_ALLIN:
+    		action.player.chips = action.player.chips - action.chips
+			self.roundpool = self.roundpool + action.chips
+			action.player.roundbet = action.player.roundbet + action.chips
+			self.addExcutedAction(action)
+			
     		player.state = STATE_ALLIN
-    	elif action.type == PLAYER_ACTION_TYPE_RAISE:
-    		pass
-    	elif action.type == PLAYER_ACTION_TYPE_CALL:
-    		pass
+    	elif action.type == PLAYER_ACTION_TYPE_RAISE or action.type == PLAYER_ACTION_TYPE_CALL:
+    		if action.enough():
+    			action.player.chips = action.player.chips - action.chips
+    			self.roundpool = self.roundpool + action.chips
+    			action.player.roundbet = action.player.roundbet + action.chips
+    			self.addExcutedAction(action)
+    		else:
+    			logE("no enough chips for bet.")
     	elif action.type == PLAYER_ACTION_TYPE_CHECK:
-    		logD("player %s check.do nothing but move to next." % (action.player.name))
+    		logD("player %s check.do nothing but move on." % (action.player.name))
     	else:
     		logE("not support action." + action.type)
-
     	self.notifyAction(action)
-
-        if bet.enough():
-            bet.player.chips = bet.player.chips - bet.chips
-            self.roundpool = self.roundpool + bet.chips
-            bet.player.roundbet = bet.player.roundbet + bet.chips
-            self.bets.append(bet)
-        else:
-            logE("no enough chips for bet.")
-            exit(1)
 
     def notifyAction(self,action):
     	pass
@@ -120,7 +122,7 @@ class Betround:
         if ac.type not in options:
             logE("return action is not in options.fold.")
             ac.type = PLAYER_ACTION_TYPE_FOLD
-        # do action
+        # prepare for action
         self.prepareAction(ac, p)
 
     def appendAction(self,action):
@@ -140,6 +142,7 @@ class Betround:
             elif len(self.bets) == 1:
                 mini = action.lastbet.chips
             else:
+            	#[issue] maybe we should search in the actions to find the mini raise
                 mini = self.bets[-1].chips - self.bets[-2].chips
             if action.chips < mini:
                 action.chips = mini

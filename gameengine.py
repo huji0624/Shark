@@ -1,9 +1,6 @@
 #!/usr/bin/python
 
-class PlayerIns():
-    def __init__(self, player):
-        self.player = player
-        self.handcard = None
+
 
 
 from deuces import *
@@ -11,21 +8,16 @@ import random
 import betround
 from log import *
 from pot import *
+from desk import *
 
 
 class gameEngine:
     def __init__(self):
         self.roundCount = 0
-        self.players = []
-        self.button = None
-        self.buyin = 200
-        self.bb = 2
-        self.sb = 1
-        self.board = None
-        self.rebuymap = {}
+        self.desk = Desk(DeskConfig(200, 2, 1))
         self.pot = None
 
-    def gameStart(self):
+    def game_start(self):
         self.initGame()
         while True:
             self.roundStart()
@@ -39,35 +31,18 @@ class gameEngine:
             self.roundEnd()
 
     def initGame(self):
-        self.button = random.randint(0, len(self.players) - 1)
-        for p in self.players:
-            p.player.gameStart(self.buyin, self.bb, self.sb)
-            p.chips = self.buyin
+        self.desk.start()
 
     def addPlayer(self, player):
         if player.name == None:
             print "add player fail.name must be set."
             return
-        self.players.append(PlayerIns(player))
-        self.rebuymap[player.name] = 0
-
-    def kickPlayer(self):
-        pass
+        self.desk.add_player(player)
 
     def roundStart(self):
         self.roundCount = self.roundCount + 1
-        self.button = self.button + 1
-        self.deck = Deck()
+        self.desk.round_start()
         self.pot = Pot()
-        self.board = []
-        for p in self.players:
-            if p.chips == 0:
-                p.chips = self.buyin
-                self.rebuymap[p.player.name] = self.rebuymap[p.player.name] + 200
-            handcard = self.deck.draw(2)
-            p.player.roundStart(handcard)
-            p.handcard = handcard
-            logD("Player %s handcard:%s" % (p.player.name, p.handcard))
         print "round %d start" % (self.roundCount)
 
     def roundEnd(self):
@@ -80,21 +55,18 @@ class gameEngine:
                     active_player = p
                     break
             self.win(active_player)
-        self.deck = None
-        for p in self.players:
-            p.player.roundEnd(self.result)
-            p.handcard = None
+        self.desk.round_end(self.result)
 
     def showHand(self):
         show_hand_players = []
         evaluator = Evaluator()
         for p in self.players:
             if p != betround.STATE_FOLD:
-                p.handvalue = evaluator.evaluate(p.handcard,self.board)
+                p.handvalue = evaluator.evaluate(p.handcard, self.board)
                 show_hand_players.append(p)
-        #[issue]refactor sidepot
+                # [issue]refactor sidepot
 
-    def win(self,player):
+    def win(self, player):
         if player == None:
             logE("win player is None.")
         player.chips = player.chips + self.pool
@@ -111,39 +83,23 @@ class gameEngine:
             return True
 
     def preFlop(self):
-        pcount = len(self.players)
+        pcount = len(self.desk.players)
         if pcount > 2:
-            br = betround.Betround(self.pot, self.players, self.button, self.bb)
-            br.addPreBet(self.sb)
-            br.addPreBet(self.bb)
-            roundpool = br.loop()
-            self.pool = self.pool + roundpool
+            br = betround.Betround(self.pot, self.desk)
+            br.addPreBet(self.desk.config.small_blind)
+            br.addPreBet(self.desk.config.big_blind)
+            br.loop()
         else:
             logE("not enough player.game stopped.")
 
     def flop(self):
-        cards = self.deck.draw(3)
-        self.board.extends(cards)
-        for p in self.players:
-            p.player.flop(cards)
-        br = betround.Betround(self.pot, self.players, self.button, self.bb)
-        roundpool = br.loop()
-        self.pool = self.pool + roundpool
+        self.desk.flop()
+        betround.Betround(self.pot, self.desk).loop()
 
     def turn(self):
-        card = self.deck.draw(1)
-        self.board.append(card)
-        for p in self.players:
-            p.player.turn(card)
-        br = betround.Betround(self.pot, self.players, self.button, self.bb)
-        roundpool = br.loop()
-        self.pool = self.pool + roundpool
+        self.desk.turn()
+        betround.Betround(self.pot, self.desk).loop()
 
     def river(self):
-        card = self.deck.draw(1)
-        self.board.append(card)
-        for p in self.players:
-            p.player.river(card)
-        br = betround.Betround(self.pot, self.players, self.button, self.bb)
-        roundpool = br.loop()
-        self.pool = self.pool + roundpool
+        self.desk.river()
+        betround.Betround(self.pot, self.desk).loop()

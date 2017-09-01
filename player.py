@@ -4,7 +4,7 @@ class player:
     def __init__(self,name):
         self.name = name
 
-    def gameStart(self, buyin, bb, sb):
+    def gameStart(self, config):
         pass
 
     def gameEnd(self):

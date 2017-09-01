@@ -10,22 +10,18 @@ STATE_ALLIN = 2
 
 
 class Betround:
-    def __init__(self, pot, players, button, bb):
-        self.count = len(players)
+    def __init__(self, pot, desk):
         self.pot = pot
-        self.roundpool = 0
-        self.players = players
-        self.index = self.next(button)
-        self.bigblind = bb
+        self.desk = desk
+        self.index = self.next(desk.button)
         self.pendingactions = []
         self.actions = []
 
     def initall(self):
-        for p in self.players:
-            p.roundbet = 0
+        self.pot.new_round_pot()
 
     def next(self, index):
-        if index == (self.count - 1):
+        if index == (self.desk.player_count - 1):
             return 0
         else:
             return index + 1
@@ -34,19 +30,15 @@ class Betround:
         self.index = self.next(self.index)
 
     def addPreBet(self, chips):
-        self.pendingactions.append(Raise(self.players[self.index], chips))
+        self.pendingactions.append(Raise(self.desk.player_at_position(self.index), chips))
         self.moveIndex()
 
     def loop(self):
         self.initall()
 
         # check if there are active player.
-        active_count = 0
-        for p in self.players:
-            if p.state == STATE_ACTIVE:
-                active_count = active_count + 1
-        if active_count <= 1:
-            return self.roundpool
+        if self.desk.active_player_count() <= 1:
+            return
 
         while True:
             if len(self.pendingactions) > 0:
@@ -57,27 +49,23 @@ class Betround:
                 break
 
         # cal side pot
-        self.pot.cal_side_pot_from_actions(self.actions)
-
-        return self.roundpool
+        self.pot.cal_side_pot()
 
     def addExcutedAction(self, action):
         self.actions.append(action)
 
     def excuteAction(self, action):
         if action.type == PLAYER_ACTION_TYPE_FOLD:
-            player.state = STATE_FOLD
+            action.player.state = STATE_FOLD
         elif action.type == PLAYER_ACTION_TYPE_ALLIN:
             action.player.chips = action.player.chips - action.chips
-            self.roundpool = self.roundpool + action.chips
-            action.player.roundbet = action.player.roundbet + action.chips
+            self.pot.set_bet(action.player,action.chips)
             self.addExcutedAction(action)
-            player.state = STATE_ALLIN
+            action.player.state = STATE_ALLIN
         elif action.type == PLAYER_ACTION_TYPE_RAISE or action.type == PLAYER_ACTION_TYPE_CALL:
-            if action.enough():
+            if self.pot.round_pot.enough(action.player,action.chips):
                 action.player.chips = action.player.chips - action.chips
-                self.roundpool = self.roundpool + action.chips
-                action.player.roundbet = action.player.roundbet + action.chips
+                self.pot.set_bet(action.player,action.chips)
                 self.addExcutedAction(action)
             else:
                 logE("no enough chips for bet.")
@@ -85,27 +73,15 @@ class Betround:
             logD("player %s check.do nothing but move on." % (action.player.name))
         else:
             logE("not support action." + action.type)
-        self.notifyAction(action)
-
-    def notifyAction(self, action):
-        for p in self.players:
-            if p != action.player:
-                p.player.notify(action.player.name, action.type, action.chips, action.player.chips)
+        self.desk.notify_action(action)
 
     def nextActivePlayer(self):
         while True:
-            p = self.players[self.index]
+            p = self.desk.player_at_position(self.index)
             if p.state == STATE_ACTIVE:
                 return p
             else:
                 self.moveIndex()
-
-    def biggestRoundbet(self):
-        tmp = 0
-        for p in self.player:
-            if p.roundbet > tmp:
-                tmp = p.roundbet
-        return tmp
 
     def miniRaise(self):
         beforelastRaise = None
@@ -129,17 +105,17 @@ class Betround:
         # this is not right.last action can be fold,raise,allin and the chips can be less than the retround
         curPlayer = self.nextActivePlayer()
         options = {}
-        if self.roundpool == 0:
+        if self.pot.round_pot.chips == 0:
             options[PLAYER_ACTION_TYPE_CHECK] = True
             options[PLAYER_ACTION_TYPE_RAISE] = self.bigblind
             options[PLAYER_ACTION_TYPE_ALLIN] = curPlayer.chips
         else:
             options[PLAYER_ACTION_TYPE_FOLD] = True
-            toproundbet = self.biggestRoundbet()
-            if toproundbet >= curPlayer.chips + curPlayer.roundbet:
+            top = self.pot.round_pot.top()
+            if top >= curPlayer.chips + self.pot.round_pot.bet_for_player(curPlayer):
                 options[PLAYER_ACTION_TYPE_ALLIN] = curPlayer.chips
             else:
-                options[PLAYER_ACTION_TYPE_CALL] = toproundbet - curPlayer.roundbet
+                options[PLAYER_ACTION_TYPE_CALL] = top - self.pot.round_pot.bet_for_player(curPlayer)
                 #the mini raise ask is how much more chips the amount player should give this time.
                 options[PLAYER_ACTION_TYPE_RAISE] = self.miniRaise()
                 options[PLAYER_ACTION_TYPE_ALLIN] = True
@@ -169,31 +145,23 @@ class Betround:
         elif action_type == PLAYER_ACTION_TYPE_CHECK:
             self.appendAction(Check(player))
         elif action_type == PLAYER_ACTION_TYPE_CALL:
-            self.appendAction(Call(player, chips + player.roundbet))
+            self.appendAction(Call(player, chips + self.pot.round_pot.bet_for_player(player)))
         elif action_type == PLAYER_ACTION_TYPE_RAISE:
-            self.appendAction(Raise(player, chips + player.roundbet))
+            self.appendAction(Raise(player, chips + self.pot.round_pot.bet_for_player(player)))
         elif action_type == PLAYER_ACTION_TYPE_ALLIN:
             # if need allin.we need to deal with the side pot
-            self.appendAction(Allin(player, player.chips + player.roundbet))
+            self.appendAction(Allin(player, player.chips + self.pot.round_pot.bet_for_player(player)))
         else:
             logE("not support action." + action_type)
 
     def end(self):
-        # [issue] the end condition is not good.
-        tmpmap = {}
-        for p in self.players:
-            if p.state == STATE_ALLIN:
-                tmpmap[0] = True
-            else:
-                tmpmap[1] = True
-        if len(tmpmap) == 1 and tmpmap[0] == True:
-            return True
-
-        tmpmap = {}
-        for p in self.players:
-            if p.state == STATE_ACTIVE:
-                tmpmap[p.roundbet] = True
-        if len(tmpmap) == 1:
+        actives = self.desk.active_players()
+        if len(actives) == 0:
+            logE("no way.no active player.")
+        elif len(actives) == 1:
             return True
         else:
-            return False
+            if self.pot.round_pot.even(actives):
+                return True
+            else:
+                return False

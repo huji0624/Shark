@@ -12,4 +12,4 @@ ge.addPlayer(randomPlayer("r4"))
 ge.addPlayer(randomPlayer("r5"))
 ge.addPlayer(randomPlayer("r6"))
 
-ge.gameStart()
+ge.game_start()

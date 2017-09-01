@@ -11,6 +11,9 @@ def Fold(player):
 	ac.player = player
 	return ac
 
+'''
+it means raise to actually.
+'''
 def Raise(player,chips):
 	ac = Action(PLAYER_ACTION_TYPE_RAISE)
 	ac.chips = chips
@@ -39,9 +42,3 @@ class Action:
         self.type = action_type
         self.chips = 0
         self.player = None
-
-    def enough(self):
-        if self.chips > self.player.chips:
-            return False
-        else:
-            return True

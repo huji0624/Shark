@@ -10,6 +10,7 @@ from deuces import *
 import random
 import betround
 from log import *
+from pot import *
 
 
 class gameEngine:
@@ -22,6 +23,7 @@ class gameEngine:
         self.sb = 1
         self.board = None
         self.rebuymap = {}
+        self.pot = None
 
     def gameStart(self):
         self.initGame()
@@ -56,7 +58,7 @@ class gameEngine:
         self.roundCount = self.roundCount + 1
         self.button = self.button + 1
         self.deck = Deck()
-        self.pool = 0
+        self.pot = Pot()
         self.board = []
         for p in self.players:
             if p.chips == 0:
@@ -84,13 +86,19 @@ class gameEngine:
             p.handcard = None
 
     def showHand(self):
-        pass
+        show_hand_players = []
+        evaluator = Evaluator()
+        for p in self.players:
+            if p != betround.STATE_FOLD:
+                p.handvalue = evaluator.evaluate(p.handcard,self.board)
+                show_hand_players.append(p)
+        #[issue]refactor sidepot
 
     def win(self,player):
         if player == None:
             logE("win player is None.")
         player.chips = player.chips + self.pool
-        self.pool = 0
+        self.pot = None
 
     def checkRound(self):
         fold_player_count = 0
@@ -105,7 +113,7 @@ class gameEngine:
     def preFlop(self):
         pcount = len(self.players)
         if pcount > 2:
-            br = betround.Betround(0, self.players, self.button, self.bb)
+            br = betround.Betround(self.pot, self.players, self.button, self.bb)
             br.addPreBet(self.sb)
             br.addPreBet(self.bb)
             roundpool = br.loop()
@@ -118,7 +126,7 @@ class gameEngine:
         self.board.extends(cards)
         for p in self.players:
             p.player.flop(cards)
-        br = betround.Betround(0, self.players, self.button, self.bb)
+        br = betround.Betround(self.pot, self.players, self.button, self.bb)
         roundpool = br.loop()
         self.pool = self.pool + roundpool
 
@@ -127,7 +135,7 @@ class gameEngine:
         self.board.append(card)
         for p in self.players:
             p.player.turn(card)
-        br = betround.Betround(0, self.players, self.button, self.bb)
+        br = betround.Betround(self.pot, self.players, self.button, self.bb)
         roundpool = br.loop()
         self.pool = self.pool + roundpool
 
@@ -136,6 +144,6 @@ class gameEngine:
         self.board.append(card)
         for p in self.players:
             p.player.river(card)
-        br = betround.Betround(0, self.players, self.button, self.bb)
+        br = betround.Betround(self.pot, self.players, self.button, self.bb)
         roundpool = br.loop()
         self.pool = self.pool + roundpool

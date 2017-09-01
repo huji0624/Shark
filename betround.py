@@ -2,6 +2,7 @@
 
 from action import *
 from log import *
+from pot import *
 
 STATE_ACTIVE = 0
 STATE_FOLD = 1
@@ -9,9 +10,9 @@ STATE_ALLIN = 2
 
 
 class Betround:
-    def __init__(self, pool, players, button, bb):
+    def __init__(self, pot, players, button, bb):
         self.count = len(players)
-        self.pool = pool
+        self.pot = pot
         self.roundpool = 0
         self.players = players
         self.index = self.next(button)
@@ -56,9 +57,7 @@ class Betround:
                 break
 
         # cal side pot
-        for p in self.players:
-            if p.state == STATE_ALLIN and p.sidepot == 0:
-                self.calSidePot(p)
+        self.pot.cal_side_pot_from_actions(self.actions)
 
         return self.roundpool
 
@@ -141,6 +140,7 @@ class Betround:
                 options[PLAYER_ACTION_TYPE_ALLIN] = curPlayer.chips
             else:
                 options[PLAYER_ACTION_TYPE_CALL] = toproundbet - curPlayer.roundbet
+                #the mini raise ask is how much more chips the amount player should give this time.
                 options[PLAYER_ACTION_TYPE_RAISE] = self.miniRaise()
                 options[PLAYER_ACTION_TYPE_ALLIN] = True
         (action_type, chips) = curPlayer.player.action(options)
@@ -169,23 +169,14 @@ class Betround:
         elif action_type == PLAYER_ACTION_TYPE_CHECK:
             self.appendAction(Check(player))
         elif action_type == PLAYER_ACTION_TYPE_CALL:
-            self.appendAction(Call(player, chips))
+            self.appendAction(Call(player, chips + player.roundbet))
         elif action_type == PLAYER_ACTION_TYPE_RAISE:
-            self.appendAction(Raise(player, chips))
+            self.appendAction(Raise(player, chips + player.roundbet))
         elif action_type == PLAYER_ACTION_TYPE_ALLIN:
             # if need allin.we need to deal with the side pot
-            self.appendAction(Allin(player, player.chips))
+            self.appendAction(Allin(player, player.chips + player.roundbet))
         else:
-            logE("not support action." + action.type)
-
-    def calSidePot(self, player):
-        sidepot = 0
-        for p in self.players:
-            if p.roundbet <= player.roundbet:
-                sidepot = sidepot + p.roundbet
-            else:
-                sidepot = sidepot + player.roundbet
-        player.sidepot = sidepot
+            logE("not support action." + action_type)
 
     def end(self):
         # [issue] the end condition is not good.

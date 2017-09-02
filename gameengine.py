@@ -17,6 +17,9 @@ class Result:
         self.hand_card = hand_card
         self.position = position
 
+    def __str__(self):
+        return "chips + %s;" % (self.chips_gain)
+    __repr__ = __str__
 
 class gameEngine:
     def __init__(self):
@@ -47,10 +50,10 @@ class gameEngine:
         self.desk.add_player(player)
 
     def roundStart(self):
+        print "----round %d start----" % (self.roundCount)
         self.roundCount = self.roundCount + 1
         self.desk.round_start()
         self.pot = Pot()
-        print "round %d start" % (self.roundCount)
 
     def check_round(self):
         if len(self.desk.players_not_state(STATE_FOLD)) == 1:
@@ -74,7 +77,7 @@ class gameEngine:
         chips_gain_map = dict()
         evaluator_ = Evaluator()
         for player in not_fold_players:
-            chips_gain_map[player] = 0
+            chips_gain_map[player.name] = 0
             player.hand_value = evaluator_.evaluate(player.hand_card, self.desk.board)
         for round_pot_ in self.pot.round_pots:
             if round_pot_.has_side_pot():
@@ -83,7 +86,9 @@ class gameEngine:
             else:
                 self.show_hand_in_pot(round_pot_.chips, not_fold_players, chips_gain_map)
         for key, value in chips_gain_map.items():
-            result[key.name] = Result(value,key.hand_card,self.desk.players.index(key))
+            player = self.desk.player_with_name(key)
+            result[key] = Result(value,player.hand_card,self.desk.players.index(player))
+        logD("Result for round:======\n %s" % (result))
         return result
 
     def show_hand_in_pot(self, chips, players, chips_gain_map):
@@ -99,7 +104,7 @@ class gameEngine:
         each = chips / top_count
         for player in top_value_players:
             player.chips = player.chips + each
-            chips_gain_map[player] = chips_gain_map[player] + each
+            chips_gain_map[player.name] = chips_gain_map[player.name] + each
 
     def win(self, player):
         result = {}
@@ -110,6 +115,7 @@ class gameEngine:
         return self.pot.chips
 
     def preFlop(self):
+        logI("++pre flop++")
         pcount = len(self.desk.players)
         if pcount > 2:
             br = betround.Betround(self.pot, self.desk)
@@ -120,13 +126,16 @@ class gameEngine:
             logE("not enough player.game stopped.")
 
     def flop(self):
+        logI("++flop++")
         self.desk.flop()
         betround.Betround(self.pot, self.desk).loop()
 
     def turn(self):
+        logI("++turn++")
         self.desk.turn()
         betround.Betround(self.pot, self.desk).loop()
 
     def river(self):
+        logI("++river++")
         self.desk.river()
         betround.Betround(self.pot, self.desk).loop()

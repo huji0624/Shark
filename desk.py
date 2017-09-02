@@ -12,7 +12,10 @@ class PlayerIns:
         self.hand_card = None
         self.hand_value = 0
         self.chips = chips
-        self.position = 0
+        self.state = None
+
+    def to_str(self):
+        return "name:%s||chips:%s||state:%s" % (self.name, self.chips, self.state)
 
     @property
     def name(self):
@@ -41,6 +44,12 @@ class Desk:
     def player_at_position(self, index):
         return self.players[index]
 
+    def player_with_name(self, name):
+        for p in self.players:
+            if p.name == name:
+                return p
+        return None
+
     def active_player_count(self):
         return len(self.active_players())
 
@@ -59,19 +68,19 @@ class Desk:
         return players_
 
     def round_start(self):
-        tmp_ = self.players.pop()
-        self.players.insert(0, tmp_)
+        tmp_ = self.players.pop(0)
+        self.players.append(tmp_)
         self.board = []
         self.deck = Deck()
         for p in self.players:
             if p.chips == 0:
                 p.chips = self.config.buy_in
-                self.rebuymap[p.player.name] = self.rebuymap[p.player.name] + 200
+                self.rebuymap[p.name] = self.rebuymap[p.name] + 200
             hand_card = self.deck.draw(2)
-            p.interface.roundStart(hand_card,None)
+            p.interface.roundStart(hand_card, None)
             p.hand_card = hand_card
             p.state = STATE_ACTIVE
-            logD("Player %s chips[%s] hand card:%s" % (p.interface.name,p.chips, p.hand_card))
+            logD("Player %s chips[%s] hand card:%s" % (p.interface.name, p.chips, p.hand_card))
 
     def round_end(self, result):
         for p in self.players:

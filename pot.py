@@ -54,15 +54,12 @@ class RoundPot:
     def bet_for_player(self, player):
         return self.player_bets[player.name] if self.player_bets.has_key(player.name) else 0
 
-    def even(self, players):
-        tmp = {}
+    def not_even(self, players):
+        not_even = []
         for p in players:
-            tmp[self.bet_for_player(p)] = True
-        if len(tmp) == 1:
-            return True
-        else:
-            return False
-
+            if self.bet_for_player(p) < self.top():
+                not_even.append(p)
+        return not_even
 
 class Pot:
     def __init__(self):

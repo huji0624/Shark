@@ -10,7 +10,9 @@ class PlayerIns:
     def __init__(self, interface, chips):
         self.interface = interface
         self.hand_card = None
+        self.hand_value = 0
         self.chips = chips
+        self.position = 0
 
     @property
     def name(self):
@@ -28,7 +30,6 @@ class Desk:
     def __init__(self, config):
         self.players = []
         self.config = config
-        self.button = 0
         self.board = None
         self.deck = None
         self.rebuymap = {}
@@ -50,29 +51,35 @@ class Desk:
                 actives.append(p)
         return actives
 
+    def players_not_state(self, state):
+        players_ = []
+        for p in self.players:
+            if p.state != state:
+                players_.append(p)
+        return players_
+
     def round_start(self):
-        self.button = self.button + 1
-        if self.button == len(self.players):
-            self.button = 0
+        tmp_ = self.players.pop()
+        self.players.insert(0, tmp_)
         self.board = []
         self.deck = Deck()
         for p in self.players:
             if p.chips == 0:
-                p.chips = self.buyin
+                p.chips = self.config.buy_in
                 self.rebuymap[p.player.name] = self.rebuymap[p.player.name] + 200
             hand_card = self.deck.draw(2)
-            p.interface.roundStart(hand_card)
+            p.interface.roundStart(hand_card,None)
             p.hand_card = hand_card
             p.state = STATE_ACTIVE
-            logD("Player %s hand card:%s" % (p.interface.name, p.hand_card))
+            logD("Player %s chips[%s] hand card:%s" % (p.interface.name,p.chips, p.hand_card))
 
     def round_end(self, result):
         for p in self.players:
-            p.player.roundEnd(result)
+            p.interface.roundEnd(result)
 
     def flop(self):
         cards = self.deck.draw(3)
-        self.board.extends(cards)
+        self.board.extend(cards)
         for p in self.players:
             p.interface.flop(cards)
 
@@ -93,11 +100,10 @@ class Desk:
         self.rebuymap[player.name] = 0
 
     def start(self):
-        self.button = random.randint(0, len(self.players) - 1)
         for p in self.players:
             p.interface.gameStart(self.config)
 
     def notify_action(self, action):
         for p in self.players:
             if p != action.player:
-                p.player.notify(action.player.name, action.type, action.chips, action.player.chips)
+                p.interface.notify(action.player.name, action.type, action.chips, action.player.chips)

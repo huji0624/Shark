@@ -13,7 +13,7 @@ class Betround:
     def __init__(self, pot, desk):
         self.pot = pot
         self.desk = desk
-        self.index = self.next(desk.button)
+        self.index = self.next(0)
         self.pendingactions = []
         self.actions = []
 
@@ -35,11 +35,9 @@ class Betround:
 
     def loop(self):
         self.initall()
-
         # check if there are active player.
         if self.desk.active_player_count() <= 1:
             return
-
         while True:
             if len(self.pendingactions) > 0:
                 self.excuteAction(self.pendingactions.pop(0))
@@ -47,9 +45,8 @@ class Betround:
                 self.askForAction()
             if self.end():
                 break
-
         # cal side pot
-        self.pot.cal_side_pot()
+        self.pot.cal_side_pot(self.actions)
 
     def addExcutedAction(self, action):
         self.actions.append(action)
@@ -63,6 +60,7 @@ class Betround:
             self.addExcutedAction(action)
             action.player.state = STATE_ALLIN
         elif action.type == PLAYER_ACTION_TYPE_RAISE or action.type == PLAYER_ACTION_TYPE_CALL:
+            logD("player %s chips[%s] , action %s chips %s" % (action.player.name,action.player.chips,action.type,action.chips))
             if self.pot.round_pot.enough(action.player,action.chips):
                 action.player.chips = action.player.chips - action.chips
                 self.pot.set_bet(action.player,action.chips)
@@ -119,9 +117,9 @@ class Betround:
                 #the mini raise ask is how much more chips the amount player should give this time.
                 options[PLAYER_ACTION_TYPE_RAISE] = self.miniRaise()
                 options[PLAYER_ACTION_TYPE_ALLIN] = True
-        (action_type, chips) = curPlayer.player.action(options)
+        (action_type, chips) = curPlayer.interface.action(options)
 
-        logD("action for player %s is %s,chips is %s" % (curPlayer.player.name, action_type, chips))
+        logD("action for player %s is %s,chips is %s" % (curPlayer.name, action_type, chips))
 
         if action_type not in options.keys():
             logE("return action is not in options.fold.")

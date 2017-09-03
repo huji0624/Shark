@@ -9,6 +9,7 @@ import betround
 from log import *
 from pot import *
 from desk import *
+import player_state
 
 
 class Result:
@@ -22,10 +23,12 @@ class Result:
     __repr__ = __str__
 
 class gameEngine:
-    def __init__(self):
+    def __init__(self, round_count_limit=-1):
         self.roundCount = 0
+        self.round_count_limit = round_count_limit
         self.desk = Desk(DeskConfig(200, 2, 1))
         self.pot = None
+        self.deal_get_chips = 0
 
     def game_start(self):
         self.initGame()
@@ -39,6 +42,9 @@ class gameEngine:
                     if self.check_round():
                         self.river()
             self.roundEnd()
+            if self.roundCount == self.round_count_limit:
+                logI("stop game because round limit.")
+                break
 
     def initGame(self):
         self.desk.start()
@@ -56,14 +62,14 @@ class gameEngine:
         self.pot = Pot()
 
     def check_round(self):
-        if len(self.desk.players_not_state(STATE_FOLD)) == 1:
+        if len(self.desk.players_not_state(player_state.PLAYER_STATE_FOLD)) == 1:
             return False
         else:
             return True
 
     def roundEnd(self):
         result = None
-        not_fold_players = self.desk.players_not_state(STATE_FOLD)
+        not_fold_players = self.desk.players_not_state(player_state.PLAYER_STATE_FOLD)
         if len(not_fold_players) > 1:
             result = self.show_hand(not_fold_players)
         elif len(not_fold_players) == 1:
@@ -71,6 +77,7 @@ class gameEngine:
         else:
             logE("this can not happen.")
         self.desk.round_end(result)
+        logD("deal + %s" % (self.deal_get_chips))
 
     def show_hand(self, not_fold_players):
         result = {}
@@ -92,6 +99,7 @@ class gameEngine:
         return result
 
     def show_hand_in_pot(self, chips, players, chips_gain_map):
+        logD("show hand in round pot %s with player %s" % (chips, players))
         sorted_players = sorted(players, key=lambda player: player.hand_value, reverse=True)
         top_value_players = [sorted_players.pop(0)]
         for player in sorted_players:
@@ -102,6 +110,7 @@ class gameEngine:
         left = chips % top_count
         chips = chips - left
         each = chips / top_count
+        self.deal_get_chips = self.deal_get_chips + left
         for player in top_value_players:
             player.chips = player.chips + each
             chips_gain_map[player.name] = chips_gain_map[player.name] + each

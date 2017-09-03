@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 
-from action import *
+import player_state
 
 
 class SidePot:
@@ -25,7 +25,7 @@ class RoundPot:
         else:
             return True
 
-    def add_side_pot(self,side_pot):
+    def add_side_pot(self, side_pot):
         self.side_pots.append(side_pot)
 
     @property
@@ -54,12 +54,12 @@ class RoundPot:
     def bet_for_player(self, player):
         return self.player_bets[player.name] if self.player_bets.has_key(player.name) else 0
 
-    def not_even(self, players):
-        not_even = []
+    def balance(self, players):
         for p in players:
             if self.bet_for_player(p) < self.top():
-                not_even.append(p)
-        return not_even
+                return False
+        return True
+
 
 class Pot:
     def __init__(self):
@@ -90,7 +90,7 @@ class Pot:
             final_action[action.player.name] = action
         final_active_actions = []
         for key, value in final_action.items():
-            if value.type != PLAYER_ACTION_TYPE_FOLD:
+            if value.player.state != player_state.PLAYER_STATE_FOLD:
                 final_active_actions.append(value)
         tmp = {}
         for action_ in final_active_actions:

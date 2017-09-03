@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import random
+import player_state
 from deuces import *
 from log import *
 from betround import *
@@ -14,7 +14,7 @@ class PlayerIns:
         self.chips = chips
         self.state = None
 
-    def to_str(self):
+    def __repr__(self):
         return "name:%s||chips:%s||state:%s" % (self.name, self.chips, self.state)
 
     @property
@@ -56,7 +56,7 @@ class Desk:
     def active_players(self):
         actives = []
         for p in self.players:
-            if p.state == STATE_ACTIVE:
+            if p.state == player_state.PLAYER_STATE_ACTIVE:
                 actives.append(p)
         return actives
 
@@ -79,12 +79,14 @@ class Desk:
             hand_card = self.deck.draw(2)
             p.interface.roundStart(hand_card, None)
             p.hand_card = hand_card
-            p.state = STATE_ACTIVE
+            p.state = player_state.PLAYER_STATE_ACTIVE
             logD("Player %s chips[%s] hand card:%s" % (p.interface.name, p.chips, p.hand_card))
 
     def round_end(self, result):
         for p in self.players:
             p.interface.roundEnd(result)
+            chips_change = p.chips - self.config.buy_in - self.rebuymap[p.name] if self.rebuymap.has_key(p.name) else 0
+            logD("Player %s %s" % (p.name, chips_change))
 
     def flop(self):
         cards = self.deck.draw(3)

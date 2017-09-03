@@ -15,6 +15,9 @@ class Betround:
 
     def init_all(self):
         self.pot.new_round_pot()
+        actives = self.desk.players_state(player_state.PLAYER_STATE_ACTIVE)
+        for p in actives:
+            p.state = player_state.PLAYER_STATE_ACTION
 
     def next(self, index):
         if index == (self.desk.player_count - 1):
@@ -36,8 +39,8 @@ class Betround:
     def loop(self):
         self.init_all()
         # check if there are active player.
-        if self.desk.active_player_count() <= 1:
-            logD("no active player.just return.")
+        if len(self.desk.players_state(player_state.PLAYER_STATE_ACTION)) <= 1:
+            logD("no action player.just return.")
             return
         while True:
             if len(self.pendingactions) > 0:
@@ -55,12 +58,20 @@ class Betround:
     def next_action_player(self):
         while True:
             player = self.desk.player_at_position(self.index)
-            if player.state == player_state.PLAYER_STATE_ACTIVE and (self.pot.round_pot.bet_for_player(
-                    player) < self.pot.round_pot.top() or player.name not in self.pot.round_pot.player_bets):
+            if player.state == player_state.PLAYER_STATE_ACTION:
                 self.moveIndex()
                 return player
+            elif player.state == player_state.PLAYER_STATE_ACTIVE:
+                if self.pot.round_pot.bet_for_player(player) < self.pot.round_pot.top():
+                    self.moveIndex()
+                    return player
+                else:
+                    if self.pot.round_pot.balance(self.desk.players_state(player_state.PLAYER_STATE_ACTIVE)):
+                        return None
+                    else:
+                        self.moveIndex()
             else:
-                if self.pot.round_pot.balance(self.desk.active_players()):
+                if len(self.desk.players_state(player_state.PLAYER_STATE_ACTIVE)) == 0:
                     return None
                 else:
                     self.moveIndex()
@@ -84,10 +95,11 @@ class Betround:
                     action.chips - self.pot.round_pot.bet_for_player(action.player))
                 self.pot.set_bet(action.player, action.chips)
                 self.add_excuted_action(action)
+                action.player.state = player_state.PLAYER_STATE_ACTIVE
             else:
                 logE("no enough chips for bet.")
         elif action.type == PLAYER_ACTION_TYPE_CHECK:
-            pass
+            action.player.state = player_state.PLAYER_STATE_ACTIVE
         else:
             logE("not support action." + action.type)
         self.desk.notify_action(action)
@@ -129,7 +141,7 @@ class Betround:
                 options[PLAYER_ACTION_TYPE_ALLIN] = True
         (action_type, chips) = player.interface.action(options)
 
-        logD("action for player %s is %s,chips is %s" % (player.name, action_type, chips))
+        # logD("action for player %s is %s,chips is %s" % (player.name, action_type, chips))
 
         if action_type not in options.keys():
             logE("return action is not in options.fold.")

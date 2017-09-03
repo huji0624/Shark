@@ -99,8 +99,8 @@ class gameEngine:
         return result
 
     def show_hand_in_pot(self, chips, players, chips_gain_map):
-        logD("show hand in round pot %s with player %s" % (chips, players))
-        sorted_players = sorted(players, key=lambda player: player.hand_value, reverse=True)
+        sorted_players = sorted(players, key=lambda player: player.hand_value)
+        logD("show hand in round pot %s with player %s" % (chips, sorted_players))
         top_value_players = [sorted_players.pop(0)]
         for player in sorted_players:
             if player.hand_value == top_value_players[0].hand_value:

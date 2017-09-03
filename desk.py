@@ -14,8 +14,17 @@ class PlayerIns:
         self.chips = chips
         self.state = None
 
+    def hand_card_str(self):
+        if self.hand_card:
+            str = ""
+            for card in self.hand_card:
+                str = str + "," +Card.int_to_pretty_str(card)
+            return str
+        else:
+            return ""
+
     def __repr__(self):
-        return "name:%s||chips:%s||state:%s" % (self.name, self.chips, self.state)
+        return "name:%s||chips:%s||state:%s||handcard:%s||handvalue:%s" % (self.name, self.chips, self.state,self.hand_card_str(),self.hand_value)
 
     @property
     def name(self):
@@ -50,20 +59,17 @@ class Desk:
                 return p
         return None
 
-    def active_player_count(self):
-        return len(self.active_players())
-
-    def active_players(self):
-        actives = []
-        for p in self.players:
-            if p.state == player_state.PLAYER_STATE_ACTIVE:
-                actives.append(p)
-        return actives
-
     def players_not_state(self, state):
         players_ = []
         for p in self.players:
             if p.state != state:
+                players_.append(p)
+        return players_
+
+    def players_state(self,state):
+        players_ = []
+        for p in self.players:
+            if p.state == state:
                 players_.append(p)
         return players_
 

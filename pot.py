@@ -119,7 +119,8 @@ class Pot:
                         side_pot.add_player(item.player)
                         for action_ in sorted_items:
                             action_.chips = action_.chips - item.chips
-                            side_pot.add_player(action_.player)
+                            if action_.player.name not in fold_players:
+                                side_pot.add_player(action_.player)
                         self.round_pot.add_side_pot(side_pot)
         else:
             return

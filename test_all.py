@@ -127,6 +127,46 @@ class Shark_Test_Side_Pot(unittest.TestCase):
         self.assertNotIn(self.p2, s2)
         self.assertNotIn(self.p6, s2)
 
+    def test_side_pot_case_4(self):
+        actions = []
+        actions.append(Raise(self.p4, 1))
+        actions.append(Raise(self.p5, 2))
+        actions.append(Allin(self.p6,200))
+        actions.append(Raise(self.p1, 202))
+        actions.append(Allin(self.p2, 403))
+        actions.append(Allin(self.p3, 197))
+        actions.append(Fold(self.p4))
+        actions.append(Fold(self.p5))
+        actions.append(Fold(self.p1))
+        pot = Pot()
+        pot.new_round_pot()
+        pot.cal_side_pot(actions)
+        self.assertEqual(len(pot.round_pot.side_pots), 3)
+        self.assertEqual(pot.round_pot.side_pots[0].chips, 3+197*4)
+        self.assertEqual(pot.round_pot.side_pots[1].chips, 9)
+        self.assertEqual(pot.round_pot.side_pots[2].chips, 205)
+        s0 = pot.round_pot.side_pots[0].players
+        self.assertIn(self.p3,s0)
+        self.assertIn(self.p6, s0)
+        self.assertIn(self.p2, s0)
+        self.assertNotIn(self.p1, s0)
+        self.assertNotIn(self.p5, s0)
+        self.assertNotIn(self.p4, s0)
+        s0 = pot.round_pot.side_pots[1].players
+        self.assertIn(self.p2, s0)
+        self.assertIn(self.p6, s0)
+        self.assertNotIn(self.p1, s0)
+        self.assertNotIn(self.p5, s0)
+        self.assertNotIn(self.p3, s0)
+        self.assertNotIn(self.p4, s0)
+        s0 = pot.round_pot.side_pots[2].players
+        self.assertIn(self.p2, s0)
+        self.assertNotIn(self.p5, s0)
+        self.assertNotIn(self.p1, s0)
+        self.assertNotIn(self.p6, s0)
+        self.assertNotIn(self.p3, s0)
+        self.assertNotIn(self.p4, s0)
+
     def test_no_side_pot_case_2(self):
         actions = []
         actions.append(Raise(self.p2, 1))

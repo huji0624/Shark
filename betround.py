@@ -12,9 +12,9 @@ class Betround:
         self.index = 0
         self.pendingactions = []
         self.actions = []
+        self.pot.new_round_pot()
 
     def init_all(self):
-        self.pot.new_round_pot()
         actives = self.desk.players_state(player_state.PLAYER_STATE_ACTIVE)
         for p in actives:
             p.state = player_state.PLAYER_STATE_ACTION
@@ -31,9 +31,9 @@ class Betround:
     def addPreBet(self, chips):
         player = self.desk.player_at_position(self.index)
         if player.chips <= chips:
-            self.appendAction(Allin(player, chips))
+            self.excuteAction(Allin(player, chips))
         else:
-            self.appendAction(Raise(player, chips))
+            self.excuteAction(Raise(player, chips))
         self.moveIndex()
 
     def loop(self):

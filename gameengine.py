@@ -77,7 +77,18 @@ class gameEngine:
         else:
             logE("this can not happen.")
         self.desk.round_end(result)
+        changes = {}
+        for p in self.desk.players:
+            chips_change = p.chips - self.desk.config.buy_in - self.desk.rebuymap[p.name] if self.desk.rebuymap.has_key(p.name) else 0
+            changes[p.name] = chips_change
+            logD("Player %s %s" % (p.name, chips_change))
         logD("deal + %s" % (self.deal_get_chips))
+        total = 0
+        for change in changes.values():
+            total = total + change
+        total = total + self.deal_get_chips
+        if total != 0:
+            logE("some thing wrong.total not 0.")
 
     def show_hand(self, not_fold_players):
         result = {}
@@ -99,6 +110,11 @@ class gameEngine:
         return result
 
     def show_hand_in_pot(self, chips, players, chips_gain_map):
+        tmp_players = []
+        for p in players:
+            if p.state != player_state.PLAYER_STATE_FOLD:
+                tmp_players.append(p)
+        players = tmp_players
         sorted_players = sorted(players, key=lambda player: player.hand_value)
         logD("show hand in round pot %s with player %s" % (chips, sorted_players))
         top_value_players = [sorted_players.pop(0)]

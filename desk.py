@@ -92,8 +92,6 @@ class Desk:
     def round_end(self, result):
         for p in self.players:
             p.interface.roundEnd(result)
-            chips_change = p.chips - self.config.buy_in - self.rebuymap[p.name] if self.rebuymap.has_key(p.name) else 0
-            logD("Player %s %s" % (p.name, chips_change))
 
     def flop(self):
         cards = self.deck.draw(3)

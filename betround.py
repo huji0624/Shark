@@ -56,7 +56,7 @@ class Betround:
         while True:
             player = self.desk.player_at_position(self.index)
             if player.state == player_state.PLAYER_STATE_ACTIVE and (self.pot.round_pot.bet_for_player(
-                    player) < self.pot.round_pot.top() or player.name not in self.pot.round_pot.player_bets.keys()):
+                    player) < self.pot.round_pot.top() or player.name not in self.pot.round_pot.player_bets):
                 self.moveIndex()
                 return player
             else:

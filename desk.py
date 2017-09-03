@@ -80,7 +80,8 @@ class Desk:
             p.interface.roundStart(hand_card, None)
             p.hand_card = hand_card
             p.state = player_state.PLAYER_STATE_ACTIVE
-            logD("Player %s chips[%s] hand card:%s" % (p.interface.name, p.chips, p.hand_card))
+            logD("Player %s chips[%s] hand card:" % (p.interface.name, p.chips))
+            Card.print_pretty_cards(p.hand_card)
 
     def round_end(self, result):
         for p in self.players:
@@ -93,18 +94,24 @@ class Desk:
         self.board.extend(cards)
         for p in self.players:
             p.interface.flop(cards)
+        logD("Board:")
+        Card.print_pretty_cards(self.board)
 
     def turn(self):
         card = self.deck.draw(1)
         self.board.append(card)
         for p in self.players:
             p.interface.turn(card)
+        logD("Board:")
+        Card.print_pretty_cards(self.board)
 
     def river(self):
         card = self.deck.draw(1)
         self.board.append(card)
         for p in self.players:
             p.interface.river(card)
+        logD("Board:")
+        Card.print_pretty_cards(self.board)
 
     def add_player(self, player):
         self.players.append(PlayerIns(player, self.config.buy_in))

@@ -3,7 +3,10 @@
 from deuces import *
 import random
 
-print random.randint(0,3)
+bets = {}
+bets["r2"] = 200
+
+print not "r2" in bets
 
 evaluator = Evaluator()
 

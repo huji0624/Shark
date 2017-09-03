@@ -87,14 +87,12 @@ class Betround:
             action.player.chips = action.player.chips - (
                 action.chips - self.pot.round_pot.bet_for_player(action.player))
             self.pot.set_bet(action.player, action.chips)
-            self.add_excuted_action(action)
             action.player.state = player_state.PLAYER_STATE_ALLIN
         elif action.type == PLAYER_ACTION_TYPE_RAISE or action.type == PLAYER_ACTION_TYPE_CALL:
             if self.pot.round_pot.enough(action.player, action.chips):
                 action.player.chips = action.player.chips - (
                     action.chips - self.pot.round_pot.bet_for_player(action.player))
                 self.pot.set_bet(action.player, action.chips)
-                self.add_excuted_action(action)
                 action.player.state = player_state.PLAYER_STATE_ACTIVE
             else:
                 logE("no enough chips for bet.")
@@ -102,6 +100,7 @@ class Betround:
             action.player.state = player_state.PLAYER_STATE_ACTIVE
         else:
             logE("not support action." + action.type)
+        self.add_excuted_action(action)
         self.desk.notify_action(action)
 
     def miniRaise(self):

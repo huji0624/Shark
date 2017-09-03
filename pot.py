@@ -2,6 +2,8 @@
 
 
 import player_state
+from action import *
+from log import *
 
 
 class SidePot:
@@ -85,25 +87,39 @@ class Pot:
         self.round_pot.set_player_bet(player, to_chips)
 
     def cal_side_pot(self, actions):
-        final_action = {}
+        has_side_pot = False
+        fold_players = []
+        round_bets = {}
         for action in actions:
-            final_action[action.player.name] = action
-        final_active_actions = []
-        for key, value in final_action.items():
-            if value.player.state != player_state.PLAYER_STATE_FOLD:
-                final_active_actions.append(value)
-        tmp = {}
-        for action_ in final_active_actions:
-            tmp[action_.chips] = True
-        if len(tmp) == 1:
+            if action.type == PLAYER_ACTION_TYPE_FOLD:
+                fold_players.append(action.player.name)
+            elif action.type == PLAYER_ACTION_TYPE_CHECK:
+                round_bets[action.player.name] = action
+            elif action.type == PLAYER_ACTION_TYPE_CALL:
+                round_bets[action.player.name] = action
+            elif action.type == PLAYER_ACTION_TYPE_RAISE:
+                round_bets[action.player.name] = action
+            elif action.type == PLAYER_ACTION_TYPE_ALLIN:
+                round_bets[action.player.name] = action
+                has_side_pot = True
+            else:
+                logE("not support type.")
+        if has_side_pot:
+            items = round_bets.values()
+            sorted_items = sorted(items, key=lambda item_: item_.chips)
+            side_chips = 0
+            while len(sorted_items) > 0:
+                item = sorted_items.pop(0)
+                if item.player.name in fold_players:
+                    side_chips = side_chips + item.chips
+                else:
+                    if item.chips != 0:
+                        side_pot = SidePot(item.chips * len(sorted_items) + item.chips + side_chips)
+                        side_chips = 0
+                        side_pot.add_player(item.player)
+                        for action_ in sorted_items:
+                            action_.chips = action_.chips - item.chips
+                            side_pot.add_player(action_.player)
+                        self.round_pot.add_side_pot(side_pot)
+        else:
             return
-        sorted_actions = sorted(final_active_actions, key=lambda action_: action_.chips)
-        while len(sorted_actions) > 0:
-            first = sorted_actions.pop(0)
-            if first.chips != 0:
-                side_pot = SidePot(first.chips * len(sorted_actions) + first.chips)
-                side_pot.add_player(first.player)
-                for action_ in sorted_actions:
-                    action_.chips = action_.chips - first.chips
-                    side_pot.add_player(action_.player)
-                self.round_pot.add_side_pot(side_pot)

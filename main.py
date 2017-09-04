@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import gameengine
+from shark import gameengine
 from randomplayer import randomPlayer
 
 ge = gameengine.gameEngine(100)

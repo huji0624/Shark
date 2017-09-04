@@ -2,9 +2,9 @@
 
 
 import unittest
-from action import *
-from pot import *
-from desk import *
+from shark.action import *
+from shark.pot import *
+from shark.desk import *
 from randomplayer import *
 
 

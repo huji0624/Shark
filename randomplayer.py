@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
-from player import player
+from shark.player import Player
 import random
 
 
-class randomPlayer(player):
+class randomPlayer(Player):
     def action(self, options , pot_chips):
         random_key = options.keys()[random.randint(0, len(options) - 1)]
         return random_key,options[random_key]

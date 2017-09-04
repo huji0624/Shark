@@ -3,7 +3,7 @@
 from shark import gameengine
 from randomplayer import randomPlayer
 
-ge = gameengine.gameEngine(100)
+ge = gameengine.gameEngine(10)
 
 ge.addPlayer(randomPlayer("r1"))
 ge.addPlayer(randomPlayer("r2"))

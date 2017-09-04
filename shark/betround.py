@@ -137,7 +137,7 @@ class Betround:
                 options[PLAYER_ACTION_TYPE_CALL] = top - self.pot.round_pot.bet_for_player(player)
                 # the mini raise ask is how much more chips the amount player should give this time.
                 options[PLAYER_ACTION_TYPE_RAISE] = top - self.pot.round_pot.bet_for_player(player) + self.miniRaise()
-                options[PLAYER_ACTION_TYPE_ALLIN] = True
+                options[PLAYER_ACTION_TYPE_ALLIN] = player.chips
 
         (action_type, chips) = player.interface.action(options, self.pot.chips)
 

@@ -134,7 +134,11 @@ class Desk:
 
     def start(self):
         for p in self.players:
-            p.interface.gameStart(self.config)
+            p.interface.game_start(self.config)
+
+    def end(self):
+        for p in self.players:
+            p.interface.game_end()
 
     def notify_action(self, action):
         for p in self.players:

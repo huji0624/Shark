@@ -5,10 +5,10 @@ class Player:
     def __init__(self, name):
         self.name = name
 
-    def gameStart(self, config):
+    def game_start(self, config):
         pass
 
-    def gameEnd(self):
+    def game_end(self):
         pass
 
     def roundStart(self, position, chips, handcard, desk_config, players):

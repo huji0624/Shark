@@ -10,6 +10,7 @@ from log import *
 from pot import *
 from desk import *
 import player_state
+from polaris import ins as polaris
 
 
 class Result:
@@ -30,8 +31,8 @@ class gameEngine:
         self.pot = None
         self.deal_get_chips = 0
 
-    def game_start(self):
-        self.initGame()
+    def start(self):
+        self.game_start()
         while True:
             self.roundStart()
             self.preFlop()
@@ -45,9 +46,14 @@ class gameEngine:
             if self.roundCount == self.round_count_limit:
                 logI("stop game because round limit.")
                 break
+        self.game_end()
 
-    def initGame(self):
+    def game_start(self):
         self.desk.start()
+
+    def game_end(self):
+        self.desk.end()
+        polaris.show()
 
     def addPlayer(self, player):
         if player.name == None:
@@ -81,6 +87,7 @@ class gameEngine:
         for p in self.desk.players:
             chips_change = p.chips - self.desk.config.buy_in - self.desk.rebuymap[p.name] if self.desk.rebuymap.has_key(p.name) else 0
             changes[p.name] = chips_change
+            polaris.mark_chips_count(p.name,chips_change,self.roundCount)
             logD("Player %s %s" % (p.name, chips_change))
         logD("deal + %s" % (self.deal_get_chips))
         total = 0

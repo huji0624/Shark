@@ -10,7 +10,7 @@ class player:
     def gameEnd(self):
         pass
 
-    def roundStart(self, handcard, players):
+    def roundStart(self, position, chips, handcard, desk_config, players):
         pass
 
     def flop(self, cards):
@@ -25,7 +25,7 @@ class player:
     def roundEnd(self, result):
         pass
 
-    def action(self, options):
+    def action(self, options, pot_chips):
         return None
 
     def notify(self, name, action_type, chips, leftchips):

@@ -3,7 +3,7 @@
 import gameengine
 from randomplayer import randomPlayer
 
-ge = gameengine.gameEngine(10000)
+ge = gameengine.gameEngine(100)
 
 ge.addPlayer(randomPlayer("r1"))
 ge.addPlayer(randomPlayer("r2"))

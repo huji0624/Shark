@@ -78,20 +78,31 @@ class Desk:
         self.players.append(tmp_)
         self.board = []
         self.deck = Deck()
+        player_status = self.player_status()
+        index = 0
         for p in self.players:
-            if p.chips == 0:
-                p.chips = self.config.buy_in
-                self.rebuymap[p.name] = self.rebuymap[p.name] + 200
             hand_card = self.deck.draw(2)
-            p.interface.roundStart(hand_card, None)
+            p.interface.roundStart(index , p.chips, hand_card, self.config , player_status)
+            index =  index+1
             p.hand_card = hand_card
             p.state = player_state.PLAYER_STATE_ACTIVE
             logD("Player %s chips[%s] hand card:" % (p.interface.name, p.chips))
             Card.print_pretty_cards(p.hand_card)
 
+    def player_status(self):
+        player_status_map = {}
+        index = 0
+        for p in self.players:
+            player_status_map[p.name] = {"position":index,"chips":p.chips}
+            index = index + 1
+        return player_status_map
+
     def round_end(self, result):
         for p in self.players:
             p.interface.roundEnd(result)
+            if p.chips == 0:
+                p.chips = self.config.buy_in
+                self.rebuymap[p.name] = self.rebuymap[p.name] + 200
 
     def flop(self):
         cards = self.deck.draw(3)

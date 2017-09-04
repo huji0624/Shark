@@ -35,7 +35,6 @@ class Polaris:
                 round_data.append(s[1])
             datas.append(round_data)
         df = pd.DataFrame(datas, index=round_counts, columns=col)
-        df = df.cumsum()
         # plt.figure()
         df.plot()
         plt.show()

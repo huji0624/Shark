@@ -59,6 +59,9 @@ class Betround:
         while True:
             player = self.desk.player_at_position(self.index)
             if player.state == player_state.PLAYER_STATE_ACTION:
+                not_fold_players = self.desk.players_not_state(PLAYER_ACTION_TYPE_FOLD)
+                if len(not_fold_players) == 1 and not_fold_players[0] == player:
+                    return None
                 self.moveIndex()
                 return player
             elif player.state == player_state.PLAYER_STATE_ACTIVE:

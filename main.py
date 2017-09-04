@@ -3,7 +3,9 @@
 from shark import gameengine
 from randomplayer import randomPlayer
 
-ge = gameengine.gameEngine(500)
+from shark.game_config import *
+
+ge = gameengine.GameEngine(GameConfig(-1, GAME_MODEL_RELEASE, GAME_LOG_LEVEL_DEBUG))
 
 ge.addPlayer(randomPlayer("r1"))
 ge.addPlayer(randomPlayer("r2"))

@@ -31,7 +31,7 @@ class Betround:
     def addPreBet(self, chips):
         player = self.desk.player_at_position(self.index)
         if player.chips <= chips:
-            self.excuteAction(Allin(player, chips))
+            self.excuteAction(Allin(player, player.chips))
         else:
             self.excuteAction(Raise(player, chips))
         self.moveIndex()
@@ -42,7 +42,7 @@ class Betround:
         if len(self.desk.players_state(player_state.PLAYER_STATE_ACTION)) <= 1:
             logD("no action player.just return.")
             return
-        while True:
+        while 1:
             if len(self.pendingactions) > 0:
                 self.excuteAction(self.pendingactions.pop(0))
             else:
@@ -56,7 +56,7 @@ class Betround:
         self.pot.cal_side_pot(self.actions)
 
     def next_action_player(self):
-        while True:
+        while 1:
             player = self.desk.player_at_position(self.index)
             if player.state == player_state.PLAYER_STATE_ACTION:
                 not_fold_players = self.desk.players_not_state(PLAYER_ACTION_TYPE_FOLD)

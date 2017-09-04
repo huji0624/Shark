@@ -11,6 +11,7 @@ from pot import *
 from desk import *
 import player_state
 from polaris import ins as polaris
+import game_config
 
 
 class Result:
@@ -20,20 +21,30 @@ class Result:
         self.position = position
 
     def __str__(self):
-        return "chips + %s;" % (self.chips_gain)
+        return "chips + %s;" % self.chips_gain
+
     __repr__ = __str__
 
-class gameEngine:
-    def __init__(self, round_count_limit=-1):
+
+class GameEngine:
+    def __init__(self, game_config_):
+        game_config.global_game_config = game_config_
         self.roundCount = 0
-        self.round_count_limit = round_count_limit
+        self.round_count_limit = game_config_.round_limit
         self.desk = Desk(DeskConfig(200, 2, 1))
         self.pot = None
         self.deal_get_chips = 0
 
     def start(self):
+        if game_config.global_game_config.model == game_config.GAME_MODEL_PROFILE:
+            import profile
+            profile.run("self.start_()")
+        else:
+            self.start_()
+
+    def start_(self):
         self.game_start()
-        while True:
+        while 1:
             self.roundStart()
             self.preFlop()
             if self.check_round():
@@ -53,10 +64,11 @@ class gameEngine:
 
     def game_end(self):
         self.desk.end()
-        polaris.show()
+        if game_config.global_game_config.model != game_config.GAME_MODEL_PROFILE:
+            polaris.show()
 
     def addPlayer(self, player):
-        if player.name == None:
+        if player.name is None:
             print "add player fail.name must be set."
             return
         self.desk.add_player(player)
@@ -85,9 +97,10 @@ class gameEngine:
         self.desk.round_end(result)
         changes = {}
         for p in self.desk.players:
-            chips_change = p.chips - self.desk.config.buy_in - self.desk.rebuymap[p.name] if self.desk.rebuymap.has_key(p.name) else 0
+            chips_change = p.chips - self.desk.config.buy_in - self.desk.rebuymap[p.name] if self.desk.rebuymap.has_key(
+                p.name) else 0
             changes[p.name] = chips_change
-            polaris.mark_chips_count(p.name,chips_change,self.roundCount)
+            polaris.mark_chips_count(p.name, chips_change, self.roundCount)
             logD("Player %s %s" % (p.name, chips_change))
         logD("deal + %s" % (self.deal_get_chips))
         total = 0
@@ -112,7 +125,7 @@ class gameEngine:
                 self.show_hand_in_pot(round_pot_.chips, not_fold_players, chips_gain_map)
         for key, value in chips_gain_map.items():
             player = self.desk.player_with_name(key)
-            result[key] = Result(value,player.hand_card,self.desk.players.index(player))
+            result[key] = Result(value, player.hand_card, self.desk.players.index(player))
         logD("Result for round:======\n %s" % (result))
         return result
 

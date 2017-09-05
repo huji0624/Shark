@@ -102,7 +102,7 @@ class Desk:
             p.interface.roundEnd(result)
             if p.chips == 0:
                 p.chips = self.config.buy_in
-                self.rebuymap[p.name] = self.rebuymap[p.name] + 200
+                self.rebuymap[p.name] = self.rebuymap[p.name] + self.config.buy_in
 
     def flop(self):
         cards = self.deck.draw(3)

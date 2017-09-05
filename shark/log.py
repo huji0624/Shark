@@ -16,6 +16,7 @@ def logI(msg):
 
 def logE(msg):
     print "[ERR]" + msg
-    import winsound
-    winsound.Beep(600, 2000)
+    if game_config.global_game_config.is_debug_model:
+        import winsound
+        winsound.Beep(600, 2000)
     exit(1)

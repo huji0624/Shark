@@ -6,7 +6,8 @@ import player_state
 
 
 class Betround:
-    def __init__(self, pot, desk):
+    def __init__(self, pot, desk, dealer):
+        self.dealer = dealer
         self.pot = pot
         self.desk = desk
         self.index = 0
@@ -147,7 +148,6 @@ class Betround:
         # logD("action for player %s is %s,chips is %s" % (player.name, action_type, chips))
 
         if action_type not in options.keys():
-            logE("return action is not in options.fold.")
             action_type = PLAYER_ACTION_TYPE_FOLD
         elif action_type == PLAYER_ACTION_TYPE_RAISE and chips >= player.chips:
             logI("raise more than he got.all in.")

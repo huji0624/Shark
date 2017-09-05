@@ -4,6 +4,7 @@
 class Player:
     def __init__(self, name):
         self.name = name
+        self.dealer = None
 
     def game_start(self, config):
         pass

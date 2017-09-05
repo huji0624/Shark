@@ -35,7 +35,7 @@ class LittleTightPlayer(Player):
                 elif PLAYER_ACTION_TYPE_CALL in options:
                     return PLAYER_ACTION_TYPE_CALL, options[PLAYER_ACTION_TYPE_CALL]
                 else:
-                    return PLAYER_ACTION_TYPE_FOLD,0
+                    return PLAYER_ACTION_TYPE_ALLIN,options[PLAYER_ACTION_TYPE_ALLIN]
             else:
                 return PLAYER_ACTION_TYPE_FOLD,0
         else:

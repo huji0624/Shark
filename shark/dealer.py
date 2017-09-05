@@ -10,3 +10,6 @@ class Dealer:
 
     def evaluate(self, hand, board):
         return self.evaluator.evaluate(hand, board)
+
+    def new_bet_round(self, players, pre_bets):
+        pass

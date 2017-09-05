@@ -22,5 +22,9 @@ class GameConfig:
     def is_debug_model(self):
         return self.model == GAME_MODEL_DEBUG
 
+    @property
+    def is_log_level_debug(self):
+        return self.log_level == GAME_LOG_LEVEL_DEBUG
+
 
 global_game_config = None

@@ -32,7 +32,7 @@ class GameEngine:
         game_config.global_game_config = game_config_
         self.roundCount = 0
         self.round_count_limit = game_config_.round_limit
-        self.desk = Desk(DeskConfig(600, 6, 3))
+        self.desk = Desk(DeskConfig(200, 2, 1))
         self.pot = None
         self.dealer = Dealer()
         self.deal_get_chips = 0

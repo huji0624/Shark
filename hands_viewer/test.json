@@ -3,22 +3,79 @@
     "players": [
       {
         "name": "r1",
-        "chips": 200
+        "chips": 200,
+        "hand_cards": [
+          147715,
+          1082379
+        ]
       },
       {
         "name": "r2",
-        "chips": 188
+        "chips": 188,
+        "hand_cards": [
+          147715,
+          1082379
+        ]
       },
       {
         "name": "r3",
-        "chips": 204
+        "chips": 204,
+        "hand_cards": [
+          147715,
+          1082379
+        ]
       },
       {
         "name": "r4",
-        "chips": 200
+        "chips": 200,
+        "hand_cards": [
+          147715,
+          1082379
+        ]
       }
     ],
-    "name":"test"
-
+    "name": "test",
+    "board": [
+      2102541,
+      2102541,
+      2102541,
+      2102541,
+      2102541
+    ],
+    "preflop": [
+      [
+        "r1",
+        "raise",
+        1
+      ],
+      [
+        "r2",
+        "raise",
+        2
+      ],
+      [
+        "r3",
+        "call",
+        2
+      ],
+      [
+        "r4",
+        "fold"
+      ],
+      [
+        "r1",
+        "check"
+      ],
+      [
+        "r2",
+        "check"
+      ]
+    ],
+    "flop": [],
+    "turn": [],
+    "river": [],
+    "result": {
+      "r1" : 6
+    }
   }
 ]

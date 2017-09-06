@@ -33,6 +33,39 @@ class HandsReplayer():
                 x = self.frame.winfo_width() / 5
 
     def play_action(self):
+        if len(self.record["preflop"]) > 0:
+            self.excute_action(self.record["preflop"].pop(0))
+            return
+        board = self.record["board"]
+        if len(board) >=3:
+            self.draw_card(board.pop(0))
+            self.draw_card(board.pop(0))
+            self.draw_card(board.pop(0))
+            return
+        if len(self.record["flop"]) > 0:
+            self.excute_action(self.record["flop"].pop(0))
+            return
+        if len(board) >=2:
+            self.draw_card(board.pop(0))
+            return
+        if len(self.record["turn"]) > 0:
+            self.excute_action(self.record["turn"].pop(0))
+            return
+        if len(board) >=1:
+            self.draw_card(board.pop(0))
+            return
+        if len(self.record["river"]) > 0:
+            self.excute_action(self.record["river"].pop(0))
+            return
+        self.end()
+
+    def draw_card(self,card):
+        pass
+
+    def excute_action(self,action):
+        pass
+
+    def end(self):
         pass
 
     def place_play_button(self):

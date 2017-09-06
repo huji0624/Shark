@@ -87,7 +87,7 @@ class Desk:
             index =  index+1
             p.hand_card = hand_card
             p.state = player_state.PLAYER_STATE_ACTIVE
-            logD("Player %s chips[%s] hand card:" % (p.interface.name, p.chips))
+            logD("Player %s chips[%s] hand card %s:" % (p.interface.name, p.chips, p.hand_card))
             if game_config.global_game_config.is_log_level_debug:
                 Card.print_pretty_cards(p.hand_card)
 

@@ -6,7 +6,7 @@ from little_tight_player import LittleTightPlayer
 
 from shark.game_config import *
 
-ge = gameengine.GameEngine(GameConfig(10000, GAME_MODEL_RELEASE, GAME_LOG_LEVEL_NO))
+ge = gameengine.GameEngine(GameConfig(10000, GAME_MODEL_RELEASE, GAME_LOG_LEVEL_DEBUG))
 
 # ge.addPlayer(LittleTightPlayer("t1"))
 # ge.addPlayer(LittleTightPlayer("t2"))

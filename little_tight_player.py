@@ -3,7 +3,7 @@
 
 from shark.player import Player
 from shark.action import *
-from shark.deuces import *
+from deuces import *
 
 
 class LittleTightPlayer(Player):

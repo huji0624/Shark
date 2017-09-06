@@ -1,0 +1,24 @@
+[
+  {
+    "players": [
+      {
+        "name": "r1",
+        "chips": 200
+      },
+      {
+        "name": "r2",
+        "chips": 188
+      },
+      {
+        "name": "r3",
+        "chips": 204
+      },
+      {
+        "name": "r4",
+        "chips": 200
+      }
+    ],
+    "name":"test"
+
+  }
+]

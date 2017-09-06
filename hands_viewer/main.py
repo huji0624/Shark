@@ -5,5 +5,6 @@
 import Tkinter
 import dashboard
 top = Tkinter.Tk("HandsViewer")
-dashboard.show(top)
+dashboard.DashBoard(top).show()
+top.attributes("-topmost", True)
 top.mainloop()

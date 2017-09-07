@@ -2,6 +2,7 @@
 
 
 from Tkinter import *
+from deuces import *
 
 
 class HandsReplayer():
@@ -9,12 +10,26 @@ class HandsReplayer():
         self.frame = Frame(master, bg="gray", width=800, height=400)
         self.frame.grid(row=0, column=1)
         self.subviews = None
+        self.end_label = None
 
     def clear(self):
         if self.subviews:
-            for view in self.subviews:
-                view.place_forget()
+            self.clear_views(self.subviews)
+
+    def init_player(self,record):
+        self.record = record
         self.subviews = []
+        self.player_labels = {}
+        self.action_labels = []
+        self.board_label = Label(self.frame, text="")
+        cx, cy = self.center()
+        self.board_label.place(x=cx, y=cy)
+        self.pot_label = Label(self.frame,text="")
+        self.pot_label.place(x=cx,y=cy-50)
+        self.end_label = None
+
+    def center(self):
+        return self.frame.winfo_width()/2,self.frame.winfo_height()/2
 
     def place_players(self, record):
         players = record['players']
@@ -23,21 +38,39 @@ class HandsReplayer():
         count = 0
         for player in players:
             count = count + 1
-            label = Label(self.frame, text="%s[%s]" % (player["name"], player["chips"]))
+            label = Label(self.frame, text="%s[%s][%s]" % (player["name"], player["chips"],self.cards_to_str(player["hand_cards"])))
             label.place(x=x, y=y)
-            self.subviews.append(player)
+            self.player_labels[player["name"]] = label
+            self.subviews.append(label)
             x = x + 200
             if count >= len(players) / 2:
                 count = 0
                 y = self.frame.winfo_height() / 4 * 3
                 x = self.frame.winfo_width() / 5
 
+    def cards_to_str(self,hands):
+        s = ""
+        for card in hands:
+            s = s + Card.int_to_str(card) + " "
+        return s
+
+    def clear_views(self,views):
+        if views:
+            for view in views:
+                view.place_forget()
+
     def play_action(self):
+        if self.end_label:
+            return
+
         if len(self.record["preflop"]) > 0:
             self.excute_action(self.record["preflop"].pop(0))
             return
+        pots = self.record["pots"]
         board = self.record["board"]
         if len(board) >=3:
+            self.clear_views(self.action_labels)
+            self.draw_pot(pots.pop(0))
             self.draw_card(board.pop(0))
             self.draw_card(board.pop(0))
             self.draw_card(board.pop(0))
@@ -46,27 +79,52 @@ class HandsReplayer():
             self.excute_action(self.record["flop"].pop(0))
             return
         if len(board) >=2:
+            self.clear_views(self.action_labels)
+            self.draw_pot(pots.pop(0))
             self.draw_card(board.pop(0))
             return
         if len(self.record["turn"]) > 0:
             self.excute_action(self.record["turn"].pop(0))
             return
         if len(board) >=1:
+            self.clear_views(self.action_labels)
+            self.draw_pot(pots.pop(0))
             self.draw_card(board.pop(0))
             return
         if len(self.record["river"]) > 0:
             self.excute_action(self.record["river"].pop(0))
             return
-        self.end()
+        if len(pots) == 1:
+            self.draw_pot(pots.pop(0))
+            return
+        self.end(self.record["result"])
+
+    def draw_pot(self,pot):
+        self.pot_label["text"] = pot
 
     def draw_card(self,card):
-        pass
+        self.board_label["text"] = self.board_label["text"] + Card.int_to_str(card) + " "
 
     def excute_action(self,action):
-        pass
+        name = action[0]
+        action_type = action[1]
+        chips = action[2] if len(action) == 3 else 0
+        label = self.player_labels[name]
+        cx , cy = self.center()
+        lx = (cx + label.winfo_x())/2
+        ly = (cy + label.winfo_y())/2
+        action_label = Label(self.frame, text="%s[%s]" % (action_type,chips))
+        action_label.place(x=lx,y=ly)
+        self.action_labels.append(action_label)
 
-    def end(self):
-        pass
+    def end(self,result):
+        print result
+        self.clear_views(self.action_labels)
+        for k,v in result.items():
+            self.excute_action((k,"win",v))
+        self.end_label = Label(self.frame,text="END",bg="red")
+        cx, cy = self.center()
+        self.end_label.place(x=cx,y=cy+50)
 
     def place_play_button(self):
         play_bt = Button(self.frame, text="Play", command=self.play_action)
@@ -75,6 +133,7 @@ class HandsReplayer():
 
     def play(self, record):
         self.clear()
+        self.init_player(record)
         self.place_play_button()
         self.place_players(record)
         print record

@@ -35,7 +35,9 @@ class DashBoard:
 
     def choose_hand(self,event):
         location = self.hands_list.curselection()[0]
-        self.replayer.play(self.record[location])
+        import copy
+        record_ = copy.deepcopy(self.record[location])
+        self.replayer.play(record_)
 
     def show(self):
         self.board = Frame(self.master)

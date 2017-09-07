@@ -17,12 +17,10 @@ class DashBoard:
         self.hands_list.delete(0, self.hands_list.size())
 
     def choose_file(self,file_path):
-        print file_path
         import json
         self.clear()
         f = file(file_path, "r")
         text = f.read()
-        print text
         self.record = json.loads(text)
         f.close()
         for item in self.record:

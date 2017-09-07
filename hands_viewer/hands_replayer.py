@@ -84,7 +84,7 @@ class HandsReplayer():
         board = self.record["board"]
         if len(board) >=3:
             self.clear_views(self.action_labels)
-            self.draw_pot(pots.pop(0))
+            self.draw_pot(pots)
             self.draw_card(board.pop(0))
             self.draw_card(board.pop(0))
             self.draw_card(board.pop(0))
@@ -94,7 +94,7 @@ class HandsReplayer():
             return
         if len(board) >=2:
             self.clear_views(self.action_labels)
-            self.draw_pot(pots.pop(0))
+            self.draw_pot(pots)
             self.draw_card(board.pop(0))
             return
         if len(self.record["turn"]) > 0:
@@ -102,19 +102,20 @@ class HandsReplayer():
             return
         if len(board) >=1:
             self.clear_views(self.action_labels)
-            self.draw_pot(pots.pop(0))
+            self.draw_pot(pots)
             self.draw_card(board.pop(0))
             return
         if len(self.record["river"]) > 0:
             self.excute_action(self.record["river"].pop(0))
             return
         if len(pots) == 1:
-            self.draw_pot(pots.pop(0))
+            self.draw_pot(pots)
             return
         self.end(self.record["result"])
 
-    def draw_pot(self,pot):
-        self.pot_label["text"] = pot
+    def draw_pot(self,pots):
+        if len(pots) > 0:
+            self.pot_label["text"] = pots.pop(0)
 
     def draw_card(self,card):
         self.board_label["text"] = self.board_label["text"] + Card.int_to_str(card) + " "
@@ -132,7 +133,6 @@ class HandsReplayer():
         self.action_labels.append(action_label)
 
     def end(self,result):
-        print result
         self.clear_views(self.action_labels)
         for k,v in result.items():
             self.excute_action((k,"win",v))
@@ -150,4 +150,3 @@ class HandsReplayer():
         self.init_player(record)
         self.place_play_button()
         self.place_players(record)
-        print record

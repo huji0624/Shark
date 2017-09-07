@@ -48,6 +48,6 @@ class HandsRecorder:
         self.cur_hand["river"].append((name, action_type, to_chips))
 
     def end_hand(self,result):
-        # self.cur_hand["result"] = result
+        self.cur_hand["result"] = result
         self.hands.append(self.cur_hand)
         self.cur_hand = None

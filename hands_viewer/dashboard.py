@@ -26,7 +26,7 @@ class DashBoard:
         self.record = json.loads(text)
         f.close()
         for item in self.record:
-            self.hands_list.insert(0, item['name'])
+            self.hands_list.insert(self.hands_list.size(), item['name'])
 
     def choose_file_handler(self):
         fd = LoadFileDialog(self.master)
@@ -42,11 +42,11 @@ class DashBoard:
     def show(self):
         self.board = Frame(self.master)
         self.board.grid(row=0,column=0)
-        self.hands_list = Listbox(self.board,height=20)
+        self.hands_list = Listbox(self.board,height=30)
         self.hands_list.bind('<<ListboxSelect>>', self.choose_hand)
         self.hands_list.pack()
         choos_file_bt = Button(self.board, text="ChooseHand", command=self.choose_file_handler)
         choos_file_bt.pack()
         self.replayer = HandsReplayer(self.master)
-        self.choose_file("/Users/huji/Documents/learn/Shark/hands_viewer/test.json")
+        self.choose_file("/Users/huji/Documents/learn/Shark/hand_record.json")
 

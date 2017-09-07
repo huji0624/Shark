@@ -66,6 +66,7 @@ class GameEngine:
 
     def game_end(self):
         self.desk.end()
+        game_config.global_game_config.hand_recorder.save_to_file()
         if game_config.global_game_config.model != game_config.GAME_MODEL_PROFILE:
             polaris.show()
 
@@ -77,6 +78,7 @@ class GameEngine:
 
     def roundStart(self):
         print "----round %d start----" % (self.roundCount)
+        game_config.global_game_config.hand_recorder.new_hand(self.roundCount)
         self.roundCount = self.roundCount + 1
         self.desk.round_start()
         self.pot = Pot()
@@ -114,6 +116,10 @@ class GameEngine:
         total = total + self.deal_get_chips
         if total != 0:
             logE("some thing wrong.total not 0.")
+        result_dict = {}
+        for k,v in result.items():
+            result_dict[k] = v.chips_gain
+        game_config.global_game_config.hand_recorder.end_hand(result_dict)
 
     def show_hand(self, not_fold_players):
         result = {}
@@ -161,7 +167,7 @@ class GameEngine:
             logE("win player is None.")
         player.chips = player.chips + self.pot.chips
         result[player.name] = Result(self.pot.chips, None, self.desk.players.index(player))
-        return self.pot.chips
+        return result
 
     def preFlop(self):
         logI("++pre flop++")

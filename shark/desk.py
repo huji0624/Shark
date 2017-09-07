@@ -7,6 +7,15 @@ from betround import *
 import game_config
 
 
+
+DESK_STATE_NO = 0
+DESK_STATE_PRE = 1
+DESK_STATE_FLOP = 2
+DESK_STATE_TURN = 3
+DESK_STATE_RIVER = 4
+
+
+
 class PlayerIns:
     def __init__(self, interface, chips):
         self.interface = interface
@@ -46,6 +55,7 @@ class Desk:
         self.board = None
         self.deck = None
         self.rebuymap = {}
+        self.desk_state = DESK_STATE_NO
 
     @property
     def player_count(self):
@@ -87,9 +97,11 @@ class Desk:
             index =  index+1
             p.hand_card = hand_card
             p.state = player_state.PLAYER_STATE_ACTIVE
+            game_config.global_game_config.hand_recorder.add_player(p.name,p.chips,p.hand_card)
             logD("Player %s chips[%s] hand card %s:" % (p.interface.name, p.chips, p.hand_card))
             if game_config.global_game_config.is_log_level_debug:
                 Card.print_pretty_cards(p.hand_card)
+        self.desk_state = DESK_STATE_PRE
 
     def player_status(self):
         player_status_map = {}
@@ -105,30 +117,38 @@ class Desk:
             if p.chips == 0:
                 p.chips = self.config.buy_in
                 self.rebuymap[p.name] = self.rebuymap[p.name] + self.config.buy_in
+        self.desk_state = DESK_STATE_NO
 
     def flop(self):
         cards = self.deck.draw(3)
+        for card in cards:
+            game_config.global_game_config.hand_recorder.add_board_card(card)
         self.board.extend(cards)
         for p in self.players:
             p.interface.flop(cards)
         if game_config.global_game_config.is_log_level_debug:
             Card.print_pretty_cards(self.board)
+        self.desk_state = DESK_STATE_FLOP
 
     def turn(self):
         card = self.deck.draw(1)
+        game_config.global_game_config.hand_recorder.add_board_card(card)
         self.board.append(card)
         for p in self.players:
             p.interface.turn(card)
         if game_config.global_game_config.is_log_level_debug:
             Card.print_pretty_cards(self.board)
+        self.desk_state = DESK_STATE_TURN
 
     def river(self):
         card = self.deck.draw(1)
+        game_config.global_game_config.hand_recorder.add_board_card(card)
         self.board.append(card)
         for p in self.players:
             p.interface.river(card)
         if game_config.global_game_config.is_log_level_debug:
             Card.print_pretty_cards(self.board)
+        self.desk_state = DESK_STATE_RIVER
 
     def add_player(self, player):
         self.players.append(PlayerIns(player, self.config.buy_in))
@@ -143,6 +163,17 @@ class Desk:
             p.interface.game_end()
 
     def notify_action(self, action):
+        recorder = game_config.global_game_config.hand_recorder
+        if self.desk_state == DESK_STATE_PRE:
+            recorder.add_pre_flop_action(action.player.name,action.type,action.chips)
+        elif self.desk_state == DESK_STATE_FLOP:
+            recorder.add_flop_action(action.player.name, action.type, action.chips)
+        elif self.desk_state == DESK_STATE_TURN:
+            recorder.add_turn_action(action.player.name, action.type, action.chips)
+        elif self.desk_state == DESK_STATE_RIVER:
+            recorder.add_river_action(action.player.name, action.type, action.chips)
+        else:
+            logE("can not have action.")
         for p in self.players:
             if p != action.player:
                 p.interface.notify(action.player.name, action.type, action.chips, action.player.chips)

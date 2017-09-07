@@ -55,6 +55,8 @@ class Betround:
                     self.ask_for_action(action_player)
         # cal side pot
         self.pot.cal_side_pot(self.actions)
+        game_config.global_game_config.hand_recorder.add_pot(self.pot.chips)
+
 
     def next_action_player(self):
         while 1:

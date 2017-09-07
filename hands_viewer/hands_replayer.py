@@ -3,18 +3,30 @@
 
 from Tkinter import *
 from deuces import *
+import math
 
 
 class HandsReplayer():
     def __init__(self, master):
-        self.frame = Frame(master, bg="gray", width=800, height=400)
+        self.frame = Frame(master, bg="gray", width=600, height=600)
         self.frame.grid(row=0, column=1)
         self.subviews = None
         self.end_label = None
+        self.pot_label = None
+        self.board_label = None
 
     def clear(self):
         if self.subviews:
             self.clear_views(self.subviews)
+        if self.pot_label:
+            self.pot_label.place_forget()
+            self.pot_label = None
+        if self.board_label:
+            self.board_label.place_forget()
+            self.board_label = None
+        if self.end_label:
+            self.end_label.place_forget()
+            self.end_label = None
 
     def init_player(self,record):
         self.record = record
@@ -31,22 +43,24 @@ class HandsReplayer():
     def center(self):
         return self.frame.winfo_width()/2,self.frame.winfo_height()/2
 
+    def position_with_degree(self,degree):
+        R = 250
+        cx, cy = self.center()
+        x = cx + R * math.cos(degree)
+        y = cy + R * math.sin(degree)
+        return x,y
+
     def place_players(self, record):
         players = record['players']
-        x = self.frame.winfo_width() / 5
-        y = self.frame.winfo_height() / 4
-        count = 0
+        degree = 0
+        dd = math.pi*2 / len(players)
         for player in players:
-            count = count + 1
-            label = Label(self.frame, text="%s[%s][%s]" % (player["name"], player["chips"],self.cards_to_str(player["hand_cards"])))
+            x,y = self.position_with_degree(degree)
+            label = Label(self.frame, text="%s[%s]\n[%s]" % (player["name"], player["chips"],self.cards_to_str(player["hand_cards"])))
             label.place(x=x, y=y)
             self.player_labels[player["name"]] = label
             self.subviews.append(label)
-            x = x + 200
-            if count >= len(players) / 2:
-                count = 0
-                y = self.frame.winfo_height() / 4 * 3
-                x = self.frame.winfo_width() / 5
+            degree = degree + dd
 
     def cards_to_str(self,hands):
         s = ""

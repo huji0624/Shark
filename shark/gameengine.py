@@ -29,7 +29,7 @@ class Result:
 
 class GameEngine:
     def __init__(self, game_config_):
-        game_config.global_game_config = game_config_
+        game_config.gg = game_config_
         self.roundCount = 0
         self.round_count_limit = game_config_.round_limit
         self.desk = Desk(DeskConfig(200, 2, 1))
@@ -38,7 +38,7 @@ class GameEngine:
         self.deal_get_chips = 0
 
     def start(self):
-        if game_config.global_game_config.model == game_config.GAME_MODEL_PROFILE:
+        if game_config.gg.model == game_config.GAME_MODEL_PROFILE:
             import profile
             profile.run("self.start_()")
         else:
@@ -66,8 +66,8 @@ class GameEngine:
 
     def game_end(self):
         self.desk.end()
-        game_config.global_game_config.hand_recorder.save_to_file()
-        if game_config.global_game_config.model != game_config.GAME_MODEL_PROFILE:
+        game_config.gg.hand_recorder.save_to_file()
+        if game_config.gg.model != game_config.GAME_MODEL_PROFILE:
             polaris.show()
 
     def addPlayer(self, player):
@@ -78,7 +78,7 @@ class GameEngine:
 
     def roundStart(self):
         print "----round %d start----" % (self.roundCount)
-        game_config.global_game_config.hand_recorder.new_hand(self.roundCount)
+        game_config.gg.hand_recorder.new_hand(self.roundCount)
         self.roundCount = self.roundCount + 1
         self.desk.round_start()
         self.pot = Pot()
@@ -104,8 +104,15 @@ class GameEngine:
         self.desk.round_end(result)
         changes = {}
         for p in self.desk.players:
-            chips_change = p.chips - self.desk.config.buy_in - self.desk.rebuymap[p.name] if self.desk.rebuymap.has_key(
-                p.name) else 0
+            if game_config.gg.chips_model == game_config.GAME_CHIPS_MODEL_CUM:
+                if p.chips == 0:
+                    p.chips = self.desk.config.buy_in
+                    p.chips_gain = p.chips_gain - self.desk.config.buy_in
+            else:
+                dc = p.chips - self.desk.config.buy_in
+                p.chips = self.desk.config.buy_in
+                p.chips_gain = p.chips_gain + dc
+            chips_change = p.chips - self.desk.config.buy_in + p.chips_gain
             changes[p.name] = chips_change
             polaris.mark_chips_count(p.name, chips_change, self.roundCount)
             logD("Player %s %s" % (p.name, chips_change))
@@ -119,7 +126,7 @@ class GameEngine:
         result_dict = {}
         for k,v in result.items():
             result_dict[k] = v.chips_gain
-        game_config.global_game_config.hand_recorder.end_hand(result_dict)
+        game_config.gg.hand_recorder.end_hand(result_dict)
 
     def show_hand(self, not_fold_players):
         result = {}

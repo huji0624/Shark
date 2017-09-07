@@ -55,7 +55,7 @@ class Betround:
                     self.ask_for_action(action_player)
         # cal side pot
         self.pot.cal_side_pot(self.actions)
-        game_config.global_game_config.hand_recorder.add_pot(self.pot.chips)
+        game_config.gg.hand_recorder.add_pot(self.pot.chips)
 
 
     def next_action_player(self):
@@ -77,7 +77,7 @@ class Betround:
                     else:
                         self.moveIndex()
             else:
-                if len(self.desk.players_state(player_state.PLAYER_STATE_ACTIVE)) == 0:
+                if len(self.desk.players_state(player_state.PLAYER_STATE_ACTIVE)) == 0 and len(self.desk.players_state(player_state.PLAYER_STATE_ACTION)) == 0:
                     return None
                 else:
                     self.moveIndex()

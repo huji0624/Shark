@@ -144,11 +144,8 @@ class Betround:
                 # the mini raise ask is how much more chips the amount player should give this time.
                 options[PLAYER_ACTION_TYPE_RAISE] = top - self.pot.round_pot.bet_for_player(player) + self.miniRaise()
                 options[PLAYER_ACTION_TYPE_ALLIN] = player.chips
-
         (action_type, chips) = player.interface.action(options, self.pot.chips)
-
         # logD("action for player %s is %s,chips is %s" % (player.name, action_type, chips))
-
         if action_type not in options.keys():
             action_type = PLAYER_ACTION_TYPE_FOLD
         elif action_type == PLAYER_ACTION_TYPE_RAISE and chips >= player.chips:

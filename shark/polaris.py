@@ -12,7 +12,7 @@ class Polaris:
     def __init__(self):
         self.record = {}
 
-    def mark_chips_count(self,name,chips,round_count):
+    def mark_chips_change(self,name,chips,round_count):
         if "chips" not in self.record:
             self.record["chips"] = {}
         chips_record = self.record["chips"]
@@ -20,7 +20,7 @@ class Polaris:
             chips_record[round_count] = []
         chips_record[round_count].append((name,chips))
 
-    def show(self):
+    def show(self,save_path=None):
         chips_record = self.record["chips"]
         round_counts = sorted(chips_record.keys())
         datas = []
@@ -36,7 +36,7 @@ class Polaris:
             datas.append(round_data)
         df = pd.DataFrame(datas, index=round_counts, columns=col)
         ax = df.plot()
-        # ax.get_figure().savefig("f.png")
-        plt.show()
-
-ins = Polaris()
+        if save_path:
+            ax.get_figure().savefig(save_path)
+        else:
+            plt.show()

@@ -10,7 +10,7 @@ from log import *
 from pot import *
 from desk import *
 import player_state
-from polaris import ins as polaris
+from polaris import *
 import game_config
 from dealer import *
 
@@ -30,12 +30,12 @@ class Result:
 class GameEngine:
     def __init__(self, game_config_):
         game_config.gg = game_config_
-        self.roundCount = 0
-        self.round_count_limit = game_config_.round_limit
+        self.roundCount = 1
         self.desk = Desk(DeskConfig(200, 2, 1))
         self.pot = None
         self.dealer = Dealer()
         self.deal_get_chips = 0
+        self.polaris = Polaris()
 
     def start(self):
         if game_config.gg.model == game_config.GAME_MODEL_PROFILE:
@@ -56,7 +56,7 @@ class GameEngine:
                     if self.check_round():
                         self.river()
             self.roundEnd()
-            if self.roundCount == self.round_count_limit:
+            if self.roundCount == game_config.gg.round_limit:
                 logI("stop game because round limit.")
                 break
         self.game_end()
@@ -66,9 +66,10 @@ class GameEngine:
 
     def game_end(self):
         self.desk.end()
-        game_config.gg.hand_recorder.save_to_file()
-        if game_config.gg.model != game_config.GAME_MODEL_PROFILE:
-            polaris.show()
+        if game_config.gg.model == game_config.GAME_MODEL_DEBUG:
+            game_config.gg.hand_recorder.set_save_file(game_config.gg.recorder_path)
+            game_config.gg.hand_recorder.save_to_file()
+            self.polaris.show()
 
     def addPlayer(self, player):
         if player.name is None:
@@ -114,7 +115,7 @@ class GameEngine:
                 p.chips_gain = p.chips_gain + dc
             chips_change = p.chips - self.desk.config.buy_in + p.chips_gain
             changes[p.name] = chips_change
-            polaris.mark_chips_count(p.name, chips_change, self.roundCount)
+            self.polaris.mark_chips_change(p.name, chips_change, self.roundCount)
             logD("Player %s %s" % (p.name, chips_change))
         logD("deal + %s" % (self.deal_get_chips))
         total = 0
@@ -127,6 +128,16 @@ class GameEngine:
         for k,v in result.items():
             result_dict[k] = v.chips_gain
         game_config.gg.hand_recorder.end_hand(result_dict)
+        if game_config.gg.model == game_config.GAME_MODEL_RELEASE:
+            limit = game_config.gg.save_data_count_limit
+            if self.roundCount % limit  == 0:
+                po_path = "%s/%s.png" % (game_config.gg.dir_path,self.roundCount)
+                self.polaris.show(po_path)
+                self.polaris = Polaris()
+                re_path = "%s/%s.json" % (game_config.gg.dir_path,self.roundCount)
+                game_config.gg.hand_recorder.set_save_path(re_path)
+                game_config.gg.hand_recorder.save_to_file()
+
 
     def show_hand(self, not_fold_players):
         result = {}

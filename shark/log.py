@@ -5,7 +5,7 @@ import game_config
 
 
 def logD(msg):
-    if game_config.gg.log_level == game_config.GAME_LOG_LEVEL_DEBUG:
+    if game_config.gg and game_config.gg.log_level == game_config.GAME_LOG_LEVEL_DEBUG:
         print "[DEBUG]" + msg
 
 

@@ -5,10 +5,11 @@ import unittest
 from shark.action import *
 from shark.pot import *
 from shark.desk import *
+from shark.dealer import *
 from randomplayer import *
 
 
-class Shark_Test_Side_Pot(unittest.TestCase):
+class Shark_Test(unittest.TestCase):
     def setUp(self):
         self.p1 = PlayerIns(randomPlayer("p1"), 200)
         self.p2 = PlayerIns(randomPlayer("p2"), 200)
@@ -190,5 +191,70 @@ class Shark_Test_Side_Pot(unittest.TestCase):
         self.assertNotIn(self.p3, s0)
         self.assertNotIn(self.p4, s0)
 
+    def test_dealer_pre_flop_1(self):
+        self.desk = Desk(DeskConfig(200, 2, 1))
+        self.desk.players = [self.p1, self.p2, self.p3, self.p4]
+        for p in self.desk.players:
+            p.state = player_state.PLAYER_STATE_ACTIVE
+        self.dealer = Dealer()
+        pres = [SmallBlind(self.p1,1),BigBlind(self.p2,2)]
+        self.dealer.new_bet_round("pre_flop",Pot(),self.desk,pres)
+        br = self.dealer.bet_round
+        br.run()
+        br.run()
+        p,count = br.next_action_player()
+        self.assertEqual(p,self.p3)
+        self.assertEqual(count,3)
+        options = br.options_for_player(p)
+        self.assertIn(PLAYER_ACTION_TYPE_ALLIN,options)
+        self.assertIn(PLAYER_ACTION_TYPE_FOLD, options)
+        self.assertIn(PLAYER_ACTION_TYPE_CALL, options)
+        self.assertIn(PLAYER_ACTION_TYPE_RAISE, options)
+        self.assertNotIn(PLAYER_ACTION_TYPE_CHECK, options)
+        self.assertEqual(options[PLAYER_ACTION_TYPE_RAISE],4)
+        self.assertEqual(options[PLAYER_ACTION_TYPE_CALL], 2)
+        self.assertEqual(options[PLAYER_ACTION_TYPE_ALLIN], 200)
+        br.excute_action(Call(self.p3,2))
+        p, count = br.next_action_player()
+        self.assertEqual(p,self.p4)
+        self.assertEqual(count, 3)
+        br.excute_action(Call(self.p4,2))
+        p,count = br.next_action_player()
+        self.assertEqual(p, self.p1)
+        self.assertEqual(count, 3)
+        options = br.options_for_player(p)
+        self.assertIn(PLAYER_ACTION_TYPE_ALLIN, options)
+        self.assertIn(PLAYER_ACTION_TYPE_FOLD, options)
+        self.assertIn(PLAYER_ACTION_TYPE_CALL, options)
+        self.assertIn(PLAYER_ACTION_TYPE_RAISE, options)
+        self.assertNotIn(PLAYER_ACTION_TYPE_CHECK, options)
+        self.assertEqual(options[PLAYER_ACTION_TYPE_RAISE], 3)
+        self.assertEqual(options[PLAYER_ACTION_TYPE_CALL], 1)
+        self.assertEqual(options[PLAYER_ACTION_TYPE_ALLIN], 199)
+        br.excute_action(Call(self.p1, 2))
+        p,count = br.next_action_player()
+        self.assertEqual(p, self.p2)
+        self.assertEqual(count, 3)
+        options = br.options_for_player(p)
+        self.assertIn(PLAYER_ACTION_TYPE_ALLIN, options)
+        self.assertIn(PLAYER_ACTION_TYPE_CHECK, options)
+        self.assertIn(PLAYER_ACTION_TYPE_RAISE, options)
+        self.assertNotIn(PLAYER_ACTION_TYPE_FOLD, options)
+        self.assertNotIn(PLAYER_ACTION_TYPE_CALL, options)
+        self.assertEqual(options[PLAYER_ACTION_TYPE_RAISE], 2)
+        self.assertEqual(options[PLAYER_ACTION_TYPE_ALLIN], 198)
+        br.excute_action(Check(self.p2))
+
+    def test_dealer_flop_1(self):
+        self.desk = Desk(DeskConfig(200, 2, 1))
+        self.desk.players = [self.p1, self.p2, self.p3, self.p4]
+        for p in self.desk.players:
+            p.state = player_state.PLAYER_STATE_ACTIVE
+        self.dealer = Dealer()
+        self.dealer.new_bet_round("flop",Pot(),self.desk,None)
+        br = self.dealer.bet_round
+        p,count = br.next_action_player()
+        self.assertEqual(p,self.p1)
+        self.assertEqual(count,3)
 
 unittest.main()

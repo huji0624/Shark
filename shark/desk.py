@@ -159,17 +159,18 @@ class Desk:
             p.interface.game_end()
 
     def notify_action(self, action):
-        recorder = game_config.gg.hand_recorder
-        if self.desk_state == DESK_STATE_PRE:
-            recorder.add_pre_flop_action(action.player.name,action.type,action.chips)
-        elif self.desk_state == DESK_STATE_FLOP:
-            recorder.add_flop_action(action.player.name, action.type, action.chips)
-        elif self.desk_state == DESK_STATE_TURN:
-            recorder.add_turn_action(action.player.name, action.type, action.chips)
-        elif self.desk_state == DESK_STATE_RIVER:
-            recorder.add_river_action(action.player.name, action.type, action.chips)
-        else:
-            logE("can not have action.")
+        if game_config.gg:
+            recorder = game_config.gg.hand_recorder
+            if self.desk_state == DESK_STATE_PRE:
+                recorder.add_pre_flop_action(action.player.name,action.type,action.chips)
+            elif self.desk_state == DESK_STATE_FLOP:
+                recorder.add_flop_action(action.player.name, action.type, action.chips)
+            elif self.desk_state == DESK_STATE_TURN:
+                recorder.add_turn_action(action.player.name, action.type, action.chips)
+            elif self.desk_state == DESK_STATE_RIVER:
+                recorder.add_river_action(action.player.name, action.type, action.chips)
+            else:
+                logE("can not have action.")
         for p in self.players:
             if p != action.player:
                 p.interface.notify(action.player.name, action.type, action.chips, action.player.chips)

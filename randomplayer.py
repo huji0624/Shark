@@ -6,7 +6,7 @@ from shark.action import *
 
 
 class randomPlayer(Player):
-    def action(self, options , pot_chips):
+    def action(self, options , info):
         key = None
         if PLAYER_ACTION_TYPE_ALLIN in options:
             rand = random.randint(0,100)

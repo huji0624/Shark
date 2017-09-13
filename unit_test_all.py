@@ -318,7 +318,7 @@ class Shark_Test(unittest.TestCase):
         # p1===
         p, count = br.next_action_player()
         self.assertEqual(p, self.p1)
-        self.assertEqual(count, 3)
+        self.assertEqual(count, 2)
         options = br.options_for_player(p)
         self.assertIn(PLAYER_ACTION_TYPE_ALLIN, options)
         self.assertIn(PLAYER_ACTION_TYPE_FOLD, options)
@@ -331,7 +331,7 @@ class Shark_Test(unittest.TestCase):
         # p2===
         p, count = br.next_action_player()
         self.assertEqual(p, self.p2)
-        self.assertEqual(count, 2)
+        self.assertEqual(count, 1)
         options = br.options_for_player(p)
         self.assertIn(PLAYER_ACTION_TYPE_ALLIN, options)
         self.assertIn(PLAYER_ACTION_TYPE_FOLD, options)
@@ -344,7 +344,7 @@ class Shark_Test(unittest.TestCase):
         # p3===
         p, count = br.next_action_player()
         self.assertEqual(p, self.p3)
-        self.assertEqual(count, 2)
+        self.assertEqual(count, 0)
         options = br.options_for_player(p)
         self.assertIn(PLAYER_ACTION_TYPE_ALLIN, options)
         self.assertIn(PLAYER_ACTION_TYPE_FOLD, options)
@@ -355,5 +355,9 @@ class Shark_Test(unittest.TestCase):
         br.excute_action(Fold(p))
         self.assertEqual(p.chips, 176)
         self.assertEqual(pot.chips,424)
+        #no action player
+        p, count = br.next_action_player()
+        self.assertIsNone(p)
+
 
 unittest.main()

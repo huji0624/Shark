@@ -46,5 +46,3 @@ class DashBoard:
         choos_file_bt = Button(self.board, text="ChooseHand", command=self.choose_file_handler)
         choos_file_bt.pack()
         self.replayer = HandsReplayer(self.master)
-        self.choose_file("/Users/huji/Documents/learn/Shark/hand_record.json")
-

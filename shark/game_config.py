@@ -23,7 +23,7 @@ GAME_CHIPS_MODEL_CLEAR = 1
 
 
 class GameConfig:
-    def __init__(self, round_limit=-1,save_limit=10000, model=GAME_MODEL_RELEASE, log_level=GAME_LOG_LEVEL_ERR,
+    def __init__(self, round_limit=-1,save_limit=-1, model=GAME_MODEL_RELEASE, log_level=GAME_LOG_LEVEL_ERR,
                  recorder_path="./hand_record.json", chips_model=GAME_CHIPS_MODEL_CUM):
         self.round_limit = round_limit
         self.model = model

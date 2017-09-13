@@ -70,7 +70,7 @@ class GameEngine:
         self.desk.end()
         dt = time.time() - self.start_time
         print "%s hands were played for one second." % (self.roundCount/dt)
-        if game_config.gg.model == game_config.GAME_MODEL_DEBUG:
+        if game_config.gg.save_data_count_limit == -1:
             game_config.gg.hand_recorder.set_save_path(game_config.gg.recorder_path)
             game_config.gg.hand_recorder.save_to_file()
             self.polaris.show()
@@ -133,7 +133,7 @@ class GameEngine:
         for k,v in result.items():
             result_dict[k] = v.chips_gain
         game_config.gg.hand_recorder.end_hand(result_dict)
-        if game_config.gg.model == game_config.GAME_MODEL_RELEASE:
+        if game_config.gg.save_data_count_limit != -1:
             limit = game_config.gg.save_data_count_limit
             if self.roundCount % limit  == 0:
                 po_path = "%s/%s.png" % (game_config.gg.dir_path,self.roundCount)

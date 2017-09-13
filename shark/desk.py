@@ -21,7 +21,7 @@ class PlayerIns:
         self.interface = interface
         self.hand_card = None
         self.hand_value = 0
-        self.chips = chips
+        self.chips_ = chips
         self.state = None
         self.chips_gain = 0
 
@@ -40,6 +40,15 @@ class PlayerIns:
     @property
     def name(self):
         return self.interface.name
+
+    @property
+    def chips(self):
+        return self.chips_
+
+    @chips.setter
+    def chips(self,chips):
+        self.chips_ = chips
+        self.interface.chips = chips
 
 
 class DeskConfig:

@@ -5,6 +5,7 @@ class Player:
     def __init__(self, name):
         self.name = name
         self.dealer = None
+        self.chips = 0
 
     def game_start(self, config):
         pass

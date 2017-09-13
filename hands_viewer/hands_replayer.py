@@ -14,8 +14,11 @@ class HandsReplayer():
         self.end_label = None
         self.pot_label = None
         self.board_label = None
+        self.action_labels = None
 
     def clear(self):
+        if self.action_labels:
+            self.clear_views(self.action_labels)
         if self.subviews:
             self.clear_views(self.subviews)
         if self.pot_label:

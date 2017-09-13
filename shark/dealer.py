@@ -82,7 +82,7 @@ class BetRound:
 
     def ask_for_action(self, player, un_action_count):
         options = self.options_for_player(player)
-        action_info = ActionInfo(self.pot.chips, un_action_count)
+        action_info = ActionInfo(self.pot.chips, un_action_count,player.chips)
         (action_type, chips) = player.interface.action(options, action_info)
         # logD("action for player %s is %s,chips is %s" % (player.name, action_type, chips))
         if action_type not in options.keys():

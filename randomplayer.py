@@ -18,7 +18,13 @@ class randomPlayer(Player):
                 key = keys[random.randint(0, len(keys) - 1)]
         else:
             key = options.keys()[random.randint(0, len(options) - 1)]
-        # chips = 0
-        # if key == PLAYER_ACTION_TYPE_RAISE:
-        #     chips = random.randint(options[key],self.chips)
-        return key,options[key]
+        chips = 0
+        if key == PLAYER_ACTION_TYPE_RAISE:
+            to_chips = (info.pot_chips - info.pot_chips%2)/2
+            if options[key] >  to_chips:
+                chips = info.chips_remain
+            else:
+                chips = random.randint(options[key],to_chips)
+        else:
+            chips = options[key]
+        return key,chips

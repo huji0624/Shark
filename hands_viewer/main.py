@@ -4,7 +4,9 @@
 
 import Tkinter
 import dashboard
-top = Tkinter.Tk("HandsViewer")
-dashboard.DashBoard(top).show()
-top.attributes("-topmost", True)
-top.mainloop()
+root = Tkinter.Tk("HandsViewer")
+dashboard.DashBoard(root).show()
+root.lift()
+root.attributes('-topmost',True)
+root.after_idle(root.attributes,'-topmost',False)
+root.mainloop()

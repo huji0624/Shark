@@ -45,11 +45,6 @@ class PlayerIns:
     def chips(self):
         return self.chips_
 
-    @chips.setter
-    def chips(self,chips):
-        self.chips_ = chips
-        self.interface.chips = chips
-
 
 class DeskConfig:
     def __init__(self, buy_in, big_blind, small_blind):

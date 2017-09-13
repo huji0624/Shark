@@ -73,6 +73,7 @@ class Action:
 
 
 class ActionInfo:
-    def __init__(self, pot_chips, un_action_player_count):
+    def __init__(self, pot_chips, un_action_player_count , chips_remain):
         self.pot_chips = pot_chips
         self.need_action_player_count = un_action_player_count
+        self.chips_remain = chips_remain

@@ -15,8 +15,7 @@ def logI(msg):
 
 
 def logW(msg):
-    if game_config.gg.log_level < game_config.GAME_LOG_LEVEL_ERR:
-        print "[WARNING]" + msg
+    print "[WARNING]" + msg
 
 def logE(msg):
     print "[ERR]" + msg

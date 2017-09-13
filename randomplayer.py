@@ -18,4 +18,7 @@ class randomPlayer(Player):
                 key = keys[random.randint(0, len(keys) - 1)]
         else:
             key = options.keys()[random.randint(0, len(options) - 1)]
+        # chips = 0
+        # if key == PLAYER_ACTION_TYPE_RAISE:
+        #     chips = random.randint(options[key],self.chips)
         return key,options[key]

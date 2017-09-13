@@ -99,6 +99,10 @@ class Pot:
                 round_bets[action.player.name] = action
             elif action.type == PLAYER_ACTION_TYPE_RAISE:
                 round_bets[action.player.name] = action
+            elif action.type == PLAYER_ACTION_TYPE_BB:
+                round_bets[action.player.name] = action
+            elif action.type == PLAYER_ACTION_TYPE_SB:
+                round_bets[action.player.name] = action
             elif action.type == PLAYER_ACTION_TYPE_ALLIN:
                 round_bets[action.player.name] = action
                 has_side_pot = True

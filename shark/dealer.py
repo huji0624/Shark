@@ -38,6 +38,7 @@ class BetRound:
                 action.chips - self.pot.round_pot.bet_for_player(action.player))
             self.pot.set_bet(action.player, action.chips)
             action.player.state = player_state.PLAYER_STATE_ALLIN
+            self.pending_action_players.remove(action.player)
         elif action.type == PLAYER_ACTION_TYPE_RAISE or action.type == PLAYER_ACTION_TYPE_CALL:
             if self.pot.round_pot.enough(action.player, action.chips):
                 action.player.chips = action.player.chips - (
@@ -63,6 +64,8 @@ class BetRound:
         self.desk.notify_action(action)
 
     def next_action_player(self):
+        if len(self.pending_action_players) == 0:
+            return None,0
         player = self.pending_action_players.pop(0)
         count = len(self.pending_action_players)
         if player.state == player_state.PLAYER_STATE_ACTION:
@@ -156,7 +159,7 @@ class BetRound:
         else:
             action_player, count = self.next_action_player()
             if action_player:
-                self.append_action(self.ask_for_action(action_player, count))
+                self.ask_for_action(action_player, count)
                 return True
             else:
                 return False

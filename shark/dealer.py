@@ -65,24 +65,27 @@ class BetRound:
 
     def next_action_player(self):
         if len(self.pending_action_players) == 0:
-            return None,0
+            return None, 0
         player = self.pending_action_players.pop(0)
         count = len(self.pending_action_players)
         if player.state == player_state.PLAYER_STATE_ACTION:
-            self.pending_action_players.append(player)
-            return player,count
+            if len(self.desk.players_not_state(player_state.PLAYER_STATE_FOLD)) == 1:
+                return None, count
+            else:
+                self.pending_action_players.append(player)
+                return player, count
         elif player.state == player_state.PLAYER_STATE_ACTIVE:
             self.pending_action_players.append(player)
             if self.pot.round_pot.bet_for_player(player) == self.pot.round_pot.top():
-                return None,count
+                return None, count
             else:
-                return player,count
+                return player, count
         else:
             logE("error.no such player.")
 
     def ask_for_action(self, player, un_action_count):
         options = self.options_for_player(player)
-        action_info = ActionInfo(self.pot.chips, un_action_count,player.chips)
+        action_info = ActionInfo(self.pot.chips, un_action_count, player.chips)
         (action_type, chips) = player.interface.action(options, action_info)
         # logD("action for player %s is %s,chips is %s" % (player.name, action_type, chips))
         if action_type not in options.keys():

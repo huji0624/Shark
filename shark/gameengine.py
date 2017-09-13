@@ -13,6 +13,7 @@ import player_state
 from polaris import *
 import game_config
 from dealer import *
+import time
 
 
 class Result:
@@ -36,6 +37,7 @@ class GameEngine:
         self.dealer = Dealer()
         self.deal_get_chips = 0
         self.polaris = Polaris()
+        self.start_time = 0
 
     def start(self):
         if game_config.gg.model == game_config.GAME_MODEL_PROFILE:
@@ -63,9 +65,12 @@ class GameEngine:
 
     def game_start(self):
         self.desk.start()
+        self.start_time = time.time()
 
     def game_end(self):
         self.desk.end()
+        dt = time.time() - self.start_time
+        print "%s hands were played for one second." % (self.roundCount/dt)
         if game_config.gg.model == game_config.GAME_MODEL_DEBUG:
             game_config.gg.hand_recorder.set_save_file(game_config.gg.recorder_path)
             game_config.gg.hand_recorder.save_to_file()

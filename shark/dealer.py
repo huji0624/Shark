@@ -97,8 +97,8 @@ class BetRound:
     def mini_raise(self):
         beforelastRaise = None
         lastRaise = None
-        for i in range(len(self.actions) - 1, -1, -1):
-            action = self.actions[i]
+        for i in range(len(self.excuted_actions) - 1, -1, -1):
+            action = self.excuted_actions[i]
             if action.type == PLAYER_ACTION_TYPE_RAISE:
                 if lastRaise == None:
                     lastRaise = action
@@ -117,11 +117,11 @@ class BetRound:
         top = self.pot.round_pot.top()
         options = {}
         if top == self.pot.round_pot.bet_for_player(player):
-            options[PLAYER_ACTION_TYPE_CHECK] = True
+            options[PLAYER_ACTION_TYPE_CHECK] = 0
             options[PLAYER_ACTION_TYPE_RAISE] = self.desk.config.big_blind
             options[PLAYER_ACTION_TYPE_ALLIN] = player.chips
         else:
-            options[PLAYER_ACTION_TYPE_FOLD] = True
+            options[PLAYER_ACTION_TYPE_FOLD] = 0
             if top >= player.chips + self.pot.round_pot.bet_for_player(player):
                 options[PLAYER_ACTION_TYPE_ALLIN] = player.chips
             else:

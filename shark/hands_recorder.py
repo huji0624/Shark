@@ -2,6 +2,7 @@
 
 
 import log
+import round_state
 
 
 class HandsRecorder:
@@ -28,10 +29,10 @@ class HandsRecorder:
         self.cur_hand["name"] = name
         self.cur_hand["players"]=[]
         self.cur_hand["board"]=[]
-        self.cur_hand["preflop"]=[]
-        self.cur_hand["flop"]=[]
-        self.cur_hand["turn"]=[]
-        self.cur_hand["river"]=[]
+        self.cur_hand[round_state.ROUND_STATE_PRE]=[]
+        self.cur_hand[round_state.ROUND_STATE_FLOP]=[]
+        self.cur_hand[round_state.ROUND_STATE_TURN]=[]
+        self.cur_hand[round_state.ROUND_STATE_RIVER]=[]
         self.cur_hand["pots"]=[]
         self.cur_hand["result"]={}
 
@@ -44,17 +45,8 @@ class HandsRecorder:
     def add_board_card(self,card):
         self.cur_hand["board"].append(card)
 
-    def add_pre_flop_action(self,name,action_type,to_chips):
-        self.cur_hand["preflop"].append((name,action_type,to_chips))
-
-    def add_flop_action(self,name,action_type,to_chips):
-        self.cur_hand["flop"].append((name, action_type, to_chips))
-
-    def add_turn_action(self,name,action_type,to_chips):
-        self.cur_hand["turn"].append((name, action_type, to_chips))
-
-    def add_river_action(self,name,action_type,to_chips):
-        self.cur_hand["river"].append((name, action_type, to_chips))
+    def add_round_action(self,round_name,name,action_type,to_chips):
+        self.cur_hand[round_name].append((name, action_type, to_chips))
 
     def end_hand(self,result):
         self.cur_hand["result"] = result

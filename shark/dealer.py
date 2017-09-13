@@ -61,7 +61,7 @@ class BetRound:
         else:
             logE("not support action." + action.type)
         self.excuted_actions.append(action)
-        self.desk.notify_action(action)
+        self.desk.notify_action(action,self.round_name)
 
     def next_action_player(self):
         if len(self.pending_action_players) == 0:
@@ -85,7 +85,7 @@ class BetRound:
 
     def ask_for_action(self, player, un_action_count):
         options = self.options_for_player(player)
-        action_info = ActionInfo(self.pot.chips, un_action_count, player.chips)
+        action_info = ActionInfo(self.pot.chips, un_action_count, player.chips,self.round_name)
         (action_type, chips) = player.interface.action(options, action_info)
         # logD("action for player %s is %s,chips is %s" % (player.name, action_type, chips))
         if action_type not in options.keys():

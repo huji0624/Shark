@@ -62,7 +62,7 @@ class GameEngine:
         if game_config.gg.save_data_count_limit == -1:
             game_config.gg.hand_recorder.set_save_path(game_config.gg.recorder_path)
             game_config.gg.hand_recorder.save_to_file()
-            self.polaris.show()
+            self.polaris.plot_all()
 
     def addPlayer(self, player):
         if player.name is None:
@@ -125,10 +125,10 @@ class GameEngine:
         if game_config.gg.save_data_count_limit != -1:
             limit = game_config.gg.save_data_count_limit
             if self.roundCount % limit  == 0:
-                po_path = "%s/%s.png" % (game_config.gg.dir_path,self.roundCount)
-                self.polaris.show(po_path)
+                po_path = "%s/chips_%s.png" % (game_config.gg.dir_path,self.roundCount)
+                self.polaris.plot_all(po_path)
                 self.polaris = Polaris()
-                re_path = "%s/%s.json" % (game_config.gg.dir_path,self.roundCount)
+                re_path = "%s/record_%s.json" % (game_config.gg.dir_path,self.roundCount)
                 game_config.gg.hand_recorder.set_save_path(re_path)
                 game_config.gg.hand_recorder.save_to_file()
 

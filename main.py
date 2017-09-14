@@ -7,22 +7,22 @@ from statistics_tight_player import StatisticsTightPlayer
 
 from shark.game_config import *
 
-ge = gameengine.GameEngine(GameConfig(round_limit=200000,save_limit=10000, model=GAME_MODEL_DEBUG, log_level=GAME_LOG_LEVEL_NO,
+ge = gameengine.GameEngine(GameConfig(round_limit=100000,save_limit=10000, model=GAME_MODEL_DEBUG, log_level=GAME_LOG_LEVEL_NO,
                                       chips_model=GAME_CHIPS_MODEL_CLEAR))
 
 ge.addPlayer(StatisticsTightPlayer("s1"))
-ge.addPlayer(StatisticsTightPlayer("s2"))
-ge.addPlayer(StatisticsTightPlayer("s3"))
-ge.addPlayer(StatisticsTightPlayer("s4"))
-ge.addPlayer(StatisticsTightPlayer("s5"))
-ge.addPlayer(StatisticsTightPlayer("s6"))
+# ge.addPlayer(StatisticsTightPlayer("s2"))
+# ge.addPlayer(StatisticsTightPlayer("s3"))
+# ge.addPlayer(StatisticsTightPlayer("s4"))
+# ge.addPlayer(StatisticsTightPlayer("s5"))
+# ge.addPlayer(StatisticsTightPlayer("s6"))
 
 # ge.addPlayer(LittleTightPlayer("t1"))
-# ge.addPlayer(LittleTightPlayer("t2"))
-# ge.addPlayer(LittleTightPlayer("t3"))
-# ge.addPlayer(LittleTightPlayer("t4"))
-# ge.addPlayer(LittleTightPlayer("t5"))
-# ge.addPlayer(LittleTightPlayer("t6"))
+ge.addPlayer(LittleTightPlayer("t2"))
+ge.addPlayer(LittleTightPlayer("t3"))
+ge.addPlayer(LittleTightPlayer("t4"))
+ge.addPlayer(LittleTightPlayer("t5"))
+ge.addPlayer(LittleTightPlayer("t6"))
 
 # ge.addPlayer(randomPlayer("r1"))
 # ge.addPlayer(randomPlayer("r2"))

@@ -1,8 +1,8 @@
 #!/bin/python
 
-import tensorflow as tf
 
-node1 = tf.constant(3.0, dtype=tf.float32)
-node2 = tf.constant(4.0) # also tf.float32 implicitly
-print(node1, node2)
-
+from  deuces import *
+c1 = "7s"
+c2 = "7h"
+print Card.new(c1)
+print Card.new(c2)

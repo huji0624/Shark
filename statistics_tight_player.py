@@ -24,10 +24,15 @@ class StatisticsTightPlayer(Player):
             self.hand_card_record[self.hand_card_product()] = self.hand_card_product_value() - 2
 
     def hand_card_product(self):
-        return Card.prime_product_from_hand(self.hand_card)
+        h1_suit = Card.get_suit_int(self.hand_card[0])
+        h2_suit = Card.get_suit_int(self.hand_card[1])
+        if h1_suit == h2_suit:
+            return Card.prime_product_from_hand(self.hand_card)
+        else:
+            return Card.prime_product_from_hand(self.hand_card) + 10000
 
     def hand_card_product_value(self):
-        return self.hand_card_record[self.hand_card_product()] if Card.prime_product_from_hand(self.hand_card) in self.hand_card_record else 100
+        return self.hand_card_record[self.hand_card_product()] if self.hand_card_product() in self.hand_card_record else 100
 
     def flop(self, cards):
         self.board.extend(cards)

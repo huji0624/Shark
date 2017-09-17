@@ -42,6 +42,8 @@ class Polaris:
         av_df = pd.DataFrame(av_datas, index=round_counts, columns=col)
         ax = df.plot()
         av_ax = av_df.plot()
+        ax.set_ylabel("chips gain")
+        av_ax.set_ylabel("chips gain/100hands")
         if save_path:
             ax.get_figure().savefig(save_path)
             import os

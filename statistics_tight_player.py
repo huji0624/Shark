@@ -56,7 +56,10 @@ class StatisticsTightPlayer(Player):
                 else:
                     return PLAYER_ACTION_TYPE_ALLIN,options[PLAYER_ACTION_TYPE_ALLIN]
             else:
-                return PLAYER_ACTION_TYPE_FOLD,0
+                if PLAYER_ACTION_TYPE_CHECK in options:
+                    return PLAYER_ACTION_TYPE_CHECK,options[PLAYER_ACTION_TYPE_CHECK]
+                else:
+                    return PLAYER_ACTION_TYPE_FOLD,0
         else:
             import random
             if random.randint(1,90) > self.hand_card_product_value():

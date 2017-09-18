@@ -20,7 +20,6 @@ class GameEngine:
         self.roundCount = 1
         self.desk = Desk(DeskConfig(200, 2, 1))
         self.dealer = Dealer(self.desk)
-        self.deal_get_chips = 0
         self.polaris = Polaris()
         self.start_time = 0
 
@@ -55,7 +54,7 @@ class GameEngine:
     def game_end(self):
         self.desk.end()
         dt = time.time() - self.start_time
-        print "%s hands were played for one second." % (self.roundCount/dt)
+        print "%s hands were played for one second." % (self.roundCount / dt)
         if game_config.gg.save_data_count_limit == -1:
             game_config.gg.hand_recorder.set_save_path(game_config.gg.recorder_path)
             game_config.gg.hand_recorder.save_to_file()
@@ -84,15 +83,7 @@ class GameEngine:
             return True
 
     def roundEnd(self):
-        self.dealer.round_end()
-        result = None
-        not_fold_players = self.desk.players_not_state(player_state.PLAYER_STATE_FOLD)
-        if len(not_fold_players) > 1:
-            result = self.show_hand(not_fold_players)
-        elif len(not_fold_players) == 1:
-            result = self.win(not_fold_players[0])
-        else:
-            logE("this can not happen.")
+        result = self.dealer.round_end()
         self.desk.round_end(result)
         changes = {}
         for p in self.desk.players:
@@ -108,83 +99,34 @@ class GameEngine:
             changes[p.name] = chips_change
             self.polaris.mark_chips_change(p.name, chips_change, self.roundCount)
             logD("Player %s %s" % (p.name, chips_change))
-        logD("deal + %s" % (self.deal_get_chips))
+        logD("deal + %s" % (self.dealer.deal_get_chips))
         total = 0
         for change in changes.values():
             total = total + change
-        total = total + self.deal_get_chips
+        total = total + self.dealer.deal_get_chips
         if total != 0:
             logE("some thing wrong.total not 0.")
         result_dict = {}
-        for k,v in result.items():
+        for k, v in result.items():
             result_dict[k] = v.chips_gain
         game_config.gg.hand_recorder.end_hand(result_dict)
         if game_config.gg.save_data_count_limit != -1:
             limit = game_config.gg.save_data_count_limit
-            if self.roundCount % limit  == 0:
-                po_path = "%s/chips_%s.png" % (game_config.gg.dir_path,self.roundCount)
+            if self.roundCount % limit == 0:
+                po_path = "%s/chips_%s.png" % (game_config.gg.dir_path, self.roundCount)
                 self.polaris.plot_all(po_path)
                 self.polaris = Polaris()
-                re_path = "%s/record_%s.json" % (game_config.gg.dir_path,self.roundCount)
+                re_path = "%s/record_%s.json" % (game_config.gg.dir_path, self.roundCount)
                 game_config.gg.hand_recorder.set_save_path(re_path)
                 game_config.gg.hand_recorder.save_to_file()
-
-
-    def show_hand(self, not_fold_players):
-        result = {}
-        chips_gain_map = dict()
-        for player in not_fold_players:
-            chips_gain_map[player.name] = 0
-            player.hand_value = self.dealer.evaluate(player.hand_card, self.desk.board)
-        for round_pot_ in self.pot.round_pots:
-            if round_pot_.has_side_pot():
-                for side_pot in round_pot_.side_pots:
-                    self.show_hand_in_pot(side_pot.chips, side_pot.players, chips_gain_map)
-            else:
-                self.show_hand_in_pot(round_pot_.chips, not_fold_players, chips_gain_map)
-        for key, value in chips_gain_map.items():
-            player = self.desk.player_with_name(key)
-            result[key] = Result(value, player.hand_card, self.desk.players.index(player))
-        logD("Result for round:======\n %s" % (result))
-        return result
-
-    def show_hand_in_pot(self, chips, players, chips_gain_map):
-        tmp_players = []
-        for p in players:
-            if p.state != player_state.PLAYER_STATE_FOLD:
-                tmp_players.append(p)
-        players = tmp_players
-        sorted_players = sorted(players, key=lambda player: player.hand_value)
-        logD("show hand in round pot %s with player %s" % (chips, sorted_players))
-        top_value_players = [sorted_players.pop(0)]
-        for player in sorted_players:
-            if player.hand_value == top_value_players[0].hand_value:
-                top_value_players.append(player)
-        top_count = len(top_value_players)
-        chips = chips
-        left = chips % top_count
-        chips = chips - left
-        each = chips / top_count
-        self.deal_get_chips = self.deal_get_chips + left
-        for player in top_value_players:
-            player.chips = player.chips + each
-            chips_gain_map[player.name] = chips_gain_map[player.name] + each
-
-    def win(self, player):
-        result = {}
-        if player is None:
-            logE("win player is None.")
-        player.chips = player.chips + self.pot.chips
-        result[player.name] = Result(self.pot.chips, None, self.desk.players.index(player))
-        return result
 
     def preFlop(self):
         logI("++pre flop++")
         pcount = len(self.desk.players)
         if pcount > 2:
-            preactions = [SmallBlind(self.desk.player_at_position(0),self.desk.config.small_blind)]
-            preactions.append(BigBlind(self.desk.player_at_position(1),self.desk.config.big_blind))
-            self.dealer.new_bet_round("preflop",preactions)
+            preactions = [SmallBlind(self.desk.player_at_position(0), self.desk.config.small_blind)]
+            preactions.append(BigBlind(self.desk.player_at_position(1), self.desk.config.big_blind))
+            self.dealer.new_bet_round("preflop", preactions)
             self.dealer.run_bet_round()
         else:
             logE("not enough player.game stopped.")

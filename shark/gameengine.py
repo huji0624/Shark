@@ -5,8 +5,6 @@
 
 from deuces import *
 import random
-from log import *
-from pot import *
 from desk import *
 import player_state
 from polaris import *
@@ -21,8 +19,7 @@ class GameEngine:
         game_config.gg = game_config_
         self.roundCount = 1
         self.desk = Desk(DeskConfig(200, 2, 1))
-        self.pot = None
-        self.dealer = Dealer()
+        self.dealer = Dealer(self.desk)
         self.deal_get_chips = 0
         self.polaris = Polaris()
         self.start_time = 0
@@ -75,8 +72,7 @@ class GameEngine:
         game_config.gg.hand_recorder.new_hand(self.roundCount)
         self.roundCount = self.roundCount + 1
         self.desk.round_start()
-        self.pot = Pot()
-        self.dealer.pot = self.pot
+        self.dealer.round_start()
         for p in self.desk.players:
             p.interface.dealer = self.dealer
             p.interface.desk_config = self.desk.config
@@ -88,6 +84,7 @@ class GameEngine:
             return True
 
     def roundEnd(self):
+        self.dealer.round_end()
         result = None
         not_fold_players = self.desk.players_not_state(player_state.PLAYER_STATE_FOLD)
         if len(not_fold_players) > 1:
@@ -187,31 +184,25 @@ class GameEngine:
         if pcount > 2:
             preactions = [SmallBlind(self.desk.player_at_position(0),self.desk.config.small_blind)]
             preactions.append(BigBlind(self.desk.player_at_position(1),self.desk.config.big_blind))
-            self.dealer.new_bet_round("preflop",self.pot,self.desk,preactions)
+            self.dealer.new_bet_round("preflop",preactions)
             self.dealer.run_bet_round()
-            # br = betround.Betround(self.pot, self.desk, self.dealer)
-            # br.addPreBet(self.desk.config.small_blind)
-            # br.addPreBet(self.desk.config.big_blind)
-            # br.loop()
         else:
             logE("not enough player.game stopped.")
 
     def flop(self):
         logI("++flop++")
         self.desk.flop()
-        # betround.Betround(self.pot, self.desk, self.dealer).loop()
-        self.dealer.new_bet_round("flop", self.pot, self.desk,None)
+        self.dealer.new_bet_round("flop", None)
         self.dealer.run_bet_round()
 
     def turn(self):
         logI("++turn++")
         self.desk.turn()
-        self.dealer.new_bet_round("turn", self.pot, self.desk, None)
+        self.dealer.new_bet_round("turn", None)
         self.dealer.run_bet_round()
 
     def river(self):
         logI("++river++")
         self.desk.river()
-        # betround.Betround(self.pot, self.desk, self.dealer).loop()
-        self.dealer.new_bet_round("river", self.pot, self.desk, None)
+        self.dealer.new_bet_round("river", None)
         self.dealer.run_bet_round()

@@ -26,20 +26,26 @@ class Polaris:
         datas = []
         col = []
         av_datas = []
+        av_round_counts = []
         for round_count in round_counts:
             status = chips_record[round_count]
             status = sorted(status,key=lambda tmp : tmp[0])
             round_data = []
-            av_round_data = []
+            av_round_data = None
+            if round_count % 100 == 0:
+                av_round_data = []
+                av_round_counts.append(round_count)
             for s in status:
                 if len(col) < len(status):
                     col.append(s[0])
                 round_data.append(s[1])
-                av_round_data.append(s[1]*100/round_count)
+                if av_round_data is not None:
+                    av_round_data.append(s[1]*100/round_count)
             datas.append(round_data)
-            av_datas.append(av_round_data)
+            if av_round_data is not None:
+                av_datas.append(av_round_data)
         df = pd.DataFrame(datas, index=round_counts, columns=col)
-        av_df = pd.DataFrame(av_datas, index=round_counts, columns=col)
+        av_df = pd.DataFrame(av_datas, index=av_round_counts, columns=col)
         ax = df.plot()
         av_ax = av_df.plot()
         ax.set_ylabel("chips gain")

@@ -138,7 +138,10 @@ class HandsReplayer():
     def end(self,result):
         self.clear_views(self.action_labels)
         for k,v in result.items():
-            self.excute_action((k,"win",v))
+            if v>0:
+                self.excute_action((k,"win",v))
+            elif v<0:
+                self.excute_action((k, "lose", v))
         self.end_label = Label(self.frame,text="END",bg="red")
         cx, cy = self.center()
         self.end_label.place(x=cx,y=cy+50)

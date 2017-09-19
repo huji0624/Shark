@@ -5,6 +5,19 @@ from shark.player import Player
 from shark.action import *
 from deuces import *
 from shark.round_state import *
+import shark.game_config
+
+
+class HandsSta:
+    def __init__(self):
+        pass
+
+
+class HandValue:
+    def __init__(self):
+        self.value = None
+        self.hands = None
+
 
 
 class StatisticsTightPlayer(Player):
@@ -12,16 +25,55 @@ class StatisticsTightPlayer(Player):
     def game_start(self, config):
         self.hand_card = None
         self.hand_card_record = {}
+        self.count = 0
 
     def roundStart(self, position, chips, handcard, desk_config, players):
         self.hand_card = handcard
         self.board = []
+        self.count = self.count + 1
 
     def roundEnd(self, result):
         if self.name in result and result[self.name].chips_gain > 0:
             self.hand_card_record[self.hand_card_product()] = self.hand_card_product_value() + 2
         else:
-            self.hand_card_record[self.hand_card_product()] = self.hand_card_product_value() - 2
+            to = self.hand_card_product_value() - 1
+            if to <= 0:
+                self.hand_card_record[self.hand_card_product()] = 20
+            else:
+                self.hand_card_record[self.hand_card_product()] = to
+
+        if self.count%10000==0:
+            self.handsta()
+
+    def game_end(self):
+        self.handsta()
+
+    def handsta(self):
+        res = ""
+        items = self.hand_card_record.items()
+        sorted_items = sorted(items,key=lambda i: i[1])
+        prime_map = {}
+        for i in range(0,13):
+            for j in range(0, 13):
+                prime = Card.PRIMES[i] * Card.PRIMES[j]
+                cs = Card.STR_RANKS[i] + Card.STR_RANKS[j]
+                prime_map[prime] = cs
+        for i in sorted_items:
+            p = i[0]
+            v = i[1]
+            s = ""
+            if p > 10000:
+                cs = prime_map[p-10000]
+                s = "o"
+                res += "%s%s  %s\n" % (cs, s, v)
+            else:
+                cs = prime_map[p]
+                s = "s"
+                res += "%s%s  %s\n" % (cs,s,v)
+        fn = "%s/handsta_%s_%s.txt" % (shark.game_config.gg.data_dir_path,self.name,self.count)
+        f = file(fn,"w")
+        f.write(res)
+        f.close()
 
     def hand_card_product(self):
         h1_suit = Card.get_suit_int(self.hand_card[0])
@@ -62,7 +114,7 @@ class StatisticsTightPlayer(Player):
                     return PLAYER_ACTION_TYPE_FOLD,0
         else:
             import random
-            if random.randint(1,65) > self.hand_card_product_value():
+            if random.randint(1,90) > self.hand_card_product_value():
                 return PLAYER_ACTION_TYPE_FOLD,0
             else:
                 if PLAYER_ACTION_TYPE_CALL in options:

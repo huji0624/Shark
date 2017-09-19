@@ -33,6 +33,7 @@ class GameConfig:
         self.chips_model = chips_model
         self.dir_path_var = os.path.split(os.path.realpath(__file__))[0] + time.strftime("/../datas/%Y-%m-%d_%H:%M:%S", time.localtime())
         self.save_data_count_limit = save_limit
+        self.desk_config = None
 
     @property
     def is_debug_model(self):
@@ -47,7 +48,7 @@ class GameConfig:
         return self.hands_recorder
 
     @property
-    def dir_path(self):
+    def data_dir_path(self):
         if not os.path.exists(self.dir_path_var):
             os.makedirs(self.dir_path_var)
         return self.dir_path_var

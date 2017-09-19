@@ -9,6 +9,6 @@ class Result:
         self.position = position
 
     def __str__(self):
-        return "chips + %s;" % self.chips_gain
+        return "chips %s;" % self.chips_gain
 
     __repr__ = __str__

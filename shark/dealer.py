@@ -15,6 +15,7 @@ class Dealer:
         self.desk = desk
         self.pot = None
         self.deal_get_chips = 0
+        self.round_chips_record = {}
 
     def evaluate(self, hand, board):
         return self.evaluator.evaluate(hand, board)
@@ -38,6 +39,9 @@ class Dealer:
 
     def round_start(self):
         self.pot = Pot()
+        players = self.desk.players
+        for p in players:
+            self.round_chips_record[p.name] = p.chips
 
     def round_end(self):
         not_fold_players = self.desk.players_not_state(player_state.PLAYER_STATE_FOLD)
@@ -49,25 +53,30 @@ class Dealer:
         else:
             logE("this can not happen.")
 
-    def show_hand(self, not_fold_players):
+    def gen_result(self,player_hand_cards):
         result = {}
-        chips_gain_map = dict()
-        for player in not_fold_players:
-            chips_gain_map[player.name] = 0
-            player.hand_value = self.evaluate(player.hand_card, self.desk.board)
-        for round_pot_ in self.pot.round_pots:
-            if round_pot_.has_side_pot():
-                for side_pot in round_pot_.side_pots:
-                    self.show_hand_in_pot(side_pot.chips, side_pot.players, chips_gain_map)
-            else:
-                self.show_hand_in_pot(round_pot_.chips, not_fold_players, chips_gain_map)
-        for key, value in chips_gain_map.items():
-            player = self.desk.player_with_name(key)
-            result[key] = Result(value, player.hand_card, self.desk.players.index(player))
+        for p in self.desk.players:
+            record_chips = self.round_chips_record[p.name]
+            diff = p.chips - record_chips
+            hand_card = player_hand_cards[p.name] if player_hand_cards is not None and p.name in player_hand_cards else None
+            result[p.name] = Result(diff, hand_card, self.desk.players.index(p))
         logD("Result for round:======\n %s" % (result))
         return result
 
-    def show_hand_in_pot(self, chips, players, chips_gain_map):
+    def show_hand(self, not_fold_players):
+        hand_cards = {}
+        for player in not_fold_players:
+            player.hand_value = self.evaluate(player.hand_card, self.desk.board)
+            hand_cards[player.name] = player.hand_card
+        for round_pot_ in self.pot.round_pots:
+            if round_pot_.has_side_pot():
+                for side_pot in round_pot_.side_pots:
+                    self.show_hand_in_pot(side_pot.chips, side_pot.players)
+            else:
+                self.show_hand_in_pot(round_pot_.chips, not_fold_players)
+        return self.gen_result(hand_cards)
+
+    def show_hand_in_pot(self, chips, players):
         tmp_players = []
         for p in players:
             if p.state != player_state.PLAYER_STATE_FOLD:
@@ -87,12 +96,9 @@ class Dealer:
         self.deal_get_chips = self.deal_get_chips + left
         for player in top_value_players:
             player.chips = player.chips + each
-            chips_gain_map[player.name] = chips_gain_map[player.name] + each
 
     def win(self, player):
-        result = {}
         if player is None:
             logE("win player is None.")
         player.chips = player.chips + self.pot.chips
-        result[player.name] = Result(self.pot.chips, None, self.desk.players.index(player))
-        return result
+        return self.gen_result(None)
